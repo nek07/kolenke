@@ -43,7 +43,7 @@ nav .count{margin-left:auto;background:var(--accent);color:var(--accent-ink);bor
 .side-ap{margin-top:auto;border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--surface-2)}
 .side-ap .t{display:flex;align-items:center;justify-content:space-between;font-weight:600}
 .side-ap p{margin:6px 0 0;color:var(--muted);font-size:13px}
-main{padding:36px 40px 120px;max-width:1100px;width:100%}
+main{min-width:0;padding:36px 40px 120px;max-width:1100px;width:100%}
 section{display:none;animation:fade .2s ease}
 section.on{display:block}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -105,7 +105,8 @@ details.acc .body{padding:0 22px 22px}
 .varchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .varchips button{border:1.5px dashed var(--line);background:var(--surface-2);border-radius:8px;padding:3px 9px;font:13px ui-monospace,Menlo,monospace;color:var(--ink-2);cursor:pointer}
 .varchips button:hover{border-color:var(--ink);color:var(--ink)}
-.banner{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:var(--r);background:var(--accent-soft);color:var(--ink);margin-bottom:16px}
+.banner{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:center;padding:16px 18px;border-radius:var(--r);background:var(--accent-soft);color:var(--ink);margin-bottom:16px}
+.banner>div{min-width:min(100%,180px)}
 .banner .i{width:22px;height:22px}
 .banner.soft{background:var(--blue-soft)}
 
@@ -138,6 +139,30 @@ td a:hover{text-decoration:underline}
 .goal .gsmall{margin-top:16px;font-size:12.5px;opacity:.75;display:flex;flex-direction:column;gap:6px}
 .goal .bar{background:rgba(20,20,20,.12);height:5px}
 .goal .bar i{background:#141414}
+.goal .streak{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:3px 11px;border-radius:99px;background:#141414;color:#fff;font-weight:700;font-size:12.5px;align-self:flex-start}
+/* pipeline board */
+.board{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;align-items:flex-start}
+.col{flex:0 0 250px;background:var(--line-2);border-radius:var(--r);padding:10px;min-height:120px;transition:background .15s,outline-color .15s;outline:2px dashed transparent}
+.col.over{outline-color:var(--ink);background:var(--accent-soft)}
+.col.soft{opacity:.75}
+.col h3{display:flex;align-items:center;gap:8px;margin:4px 6px 10px;font-size:14px;font-weight:700}
+.col h3 .n{margin-left:auto;color:var(--muted);font-weight:600}
+.col .dotc{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px;cursor:grab;font-size:14px;transition:transform .12s,box-shadow .12s}
+.pcard:hover{border-color:#CFCEC8}
+.pcard.drag{opacity:.4}
+.pcard b{display:block;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .t2{margin-top:3px}
+.pcard .nx{display:inline-flex;gap:5px;align-items:center;margin-top:8px;padding:2px 8px;border-radius:8px;background:var(--accent-soft);font-size:12.5px;font-weight:600}
+.pcard .nx.late{background:var(--line-2);color:var(--muted)}
+.stagepick{display:flex;flex-wrap:wrap;gap:6px}
+.stagepick button{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font:600 13px var(--sans);color:var(--ink-2);cursor:pointer}
+.stagepick button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.rem{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line-2)}
+.rem:last-child{border-bottom:0}
+.rem .when{flex:none;min-width:74px;text-align:center;padding:6px 8px;border-radius:10px;background:var(--accent);border:1.5px solid var(--ink);font-weight:800;font-size:13px;line-height:1.2}
+.rem .when.soft{background:var(--line-2);border-color:var(--line);font-weight:600;color:var(--ink-2)}
+.rem .m{flex:1;min-width:0}
 .big{font-weight:800;font-size:28px;line-height:1.15;letter-spacing:-.03em}
 .kpi .l{color:var(--muted);font-size:13.5px;font-weight:500}
 .todo{display:flex;flex-direction:column;gap:2px}
@@ -278,6 +303,7 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
     <small>Главное</small>
     <button data-t="dash" class="on"><i data-i="home"></i><span class="lbl">Сегодня</span></button>
     <button data-t="hh"><i data-i="briefcase"></i><span class="lbl">HeadHunter</span></button>
+    <button data-t="pipe"><i data-i="columns"></i><span class="lbl">Воронка</span><span class="count" id="pipebadge" style="display:none"></span></button>
     <button data-t="chats"><i data-i="chat"></i><span class="lbl">Чаты</span><span class="count" id="chatbadge" style="display:none"></span></button>
     <button data-t="mail"><i data-i="mail"></i><span class="lbl">Письма компаниям</span></button>
     <button data-t="other"><i data-i="globe"></i><span class="lbl">Другие сайты</span></button>
@@ -305,6 +331,7 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
       <div class="gbig" id="invWeek">0</div>
       <div class="grate" id="invRate"></div>
       <div class="gsmall"><span id="appWeek"></span><div class="bar"><i id="weekbar" style="width:0"></i></div></div>
+      <div class="streak" id="streak" style="display:none"></div>
     </div>
     <div class="card kpi">
       <div class="row"><span class="l">Автопилот</span><span class="spacer"></span><label class="switch"><input type="checkbox" class="apToggle" onchange="toggleAutopilot(this.checked)"><span></span></label></div>
@@ -315,6 +342,11 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
       <span class="l">Ждут вашего внимания</span>
       <div id="waiting" style="margin-top:10px"></div>
     </div>
+  </div>
+
+  <div class="card" id="remcard" style="display:none">
+    <div class="row"><h2><i data-i="calendar"></i>Напоминания</h2><span class="spacer"></span><button class="btn ghost sm" onclick="showTab('pipe')">Вся воронка</button></div>
+    <div id="remlist" style="margin-top:6px"></div>
   </div>
 
   <div class="card" id="setupcard">
@@ -444,6 +476,15 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
 </section>
 
 <!-- ================= CHATS ================= -->
+<section id="pipe">
+  <div class="ph"><h1>Воронка</h1><p>Что происходит после отклика. Перетаскивайте карточки, когда что-то меняется. Ответы с hh двигают их сами</p></div>
+  <div class="row" style="margin-bottom:16px">
+    <button class="btn" onclick="run('hh_sync')"><i data-i="refresh"></i>Обновить ответы с hh</button>
+    <span class="spacer"></span><span class="t2" id="pipesum"></span>
+  </div>
+  <div class="board" id="board"></div>
+</section>
+
 <section id="chats">
   <div class="ph"><h1>Чаты</h1><p>Сообщения работодателей. Роботам бот отвечает сам, а вам остаются только живые разговоры</p></div>
   <div class="row" style="margin-bottom:18px">
@@ -620,6 +661,8 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
 <script>
 /* ---------- icons ---------- */
 const ICONS = {
+  columns:'<rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
   home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
   briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/>',
   chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.4A8 8 0 1 1 21 12z"/>',
@@ -664,7 +707,8 @@ let tab = 'dash', S = {}, STATUS = {}, STATS = null, HHROWS = [], CROWS = [], hh
 const ST = {new:['Новая',''],queued:['В очереди','blue'],applied:['Отклик отправлен','green'],attention:['Нужен ваш ответ','amber'],
             skipped:['Пропущена',''],error:['Не получилось','red'],sent:['Отправлено','green']};
 const pill = st => { const [t,c] = ST[st] || [st,'']; return `<span class="pill ${c}">${t}</span>` };
-const HHS = s => !s ? '' : `<span class="pill ${/приглаш|собесед|выход/.test(s)?'green':/отказ/.test(s)?'red':/не просм/.test(s)?'':'blue'}">${esc(s)}</span>`;
+const gentle = t => (t||'').replace(/отказ/gi, 'не сейчас');
+const HHS = s => !s ? '' : `<span class="pill ${/приглаш|собесед|выход/.test(s)?'green':/отказ|не просм/.test(s)?'':'blue'}">${esc(/отказ/.test(s) ? 'не сейчас' : s)}</span>`;
 
 function toast(text, kind='ok'){
   const icon = {ok:'check', err:'alert', info:'info', party:'heart'}[kind];
@@ -676,7 +720,7 @@ function ask(title, text, yes='Да'){
     const done = v => { $('#modal').classList.remove('on'); res(v) }; $('#myes').onclick = () => done(true); $('#mno').onclick = () => done(false); });
 }
 async function api(url, body, method){
-  const opt = body instanceof FormData ? {method:'POST',body} : body!==undefined ? {method:method||'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)} : {};
+  const opt = body instanceof FormData ? {method:'POST',headers:{'X-JobBot':'1'},body} : body!==undefined ? {method:method||'POST',headers:{'Content-Type':'application/json','X-JobBot':'1'},body:JSON.stringify(body)} : {};
   let r; try { r = await fetch(url, opt) } catch(e) { throw e }
   const j = await r.json().catch(()=>({}));
   if(!r.ok){ toast(j.detail || 'Что-то пошло не так', 'err'); throw new Error(j.detail) }
@@ -707,7 +751,7 @@ function showTab(t){
   document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id===t));
   window.scrollTo({top:0}); if(t==='answers') loadAnswers(); refresh();
 }
-function refresh(){ ({dash:loadDash, hh:loadHH, chats:loadChats, stats:loadStats, mail:loadCompanies, other:loadOther}[tab] || (()=>{}))() }
+function refresh(){ ({dash:loadDash, hh:loadHH, pipe:loadPipe, chats:loadChats, stats:loadStats, mail:loadCompanies, other:loadOther}[tab] || (()=>{}))() }
 
 /* ---------- settings ---------- */
 async function loadSettings(){
@@ -787,7 +831,7 @@ function funnelHTML(states){
   const get = re => states.filter(s => re.test(s.state)).reduce((a,s)=>a+s.n,0);
   const total = states.reduce((a,s)=>a+s.n,0), inv = get(/приглаш|собесед|выход/), disc = get(/отказ/), viewed = get(/^просмотрен/) + inv + disc;
   if(!total) return `<div class="empty"><div class="em">🌱</div><b>Пока пусто</b>Отправьте первые отклики, и здесь появится путь от отклика до приглашения</div>`;
-  return [['Отправлено', total, 'var(--ink)'], ['Просмотрено', viewed, 'var(--blue)'], ['Приглашения', inv, 'var(--green)'], ['Отказы', disc, 'var(--line)']]
+  return [['Отправлено', total, 'var(--ink)'], ['Просмотрено', viewed, 'var(--blue)'], ['Приглашения', inv, 'var(--green)'], ['Не сейчас', disc, 'var(--line)']]
     .map(([l,n,c]) => `<div class="fr"><span>${l}</span><div class="bar"><i style="width:${total? Math.max(n?3:0, n*100/total):0}%;background:${c}"></i></div><b>${n}</b></div>`).join('');
 }
 function feedIcon(m){
@@ -813,7 +857,9 @@ async function loadDash(){
   const qn = ((STATUS.vacancies||{}).queued||0); if(qn) w.push(`<button class="btn" style="width:100%;justify-content:flex-start" onclick="hhFilter='queued';showTab('hh')">${ic('send')}${qn} в очереди на отклик</button>`);
   $('#waiting').innerHTML = w.join('') || `<div class="big" style="font-size:22px">Всё спокойно</div><p class="hint" style="margin-top:4px">Ничего не требует вашего внимания</p>`;
   $('#funnel').innerHTML = funnelHTML(STATS.hh_states);
-  renderFeed(); renderSetup(); celebrate();
+  const st = softStreak(STATS.by_day); $('#streak').style.display = st >= 2 ? '' : 'none';
+  $('#streak').textContent = `🔥 ${st} ${plural(st,'день','дня','дней')} в ритме`; $('#streak').title = 'Один пропущенный день серию не обнуляет';
+  renderFeed(); renderSetup(); loadReminders(); celebrate();
 }
 function renderFeed(){
   const log = (STATUS.log||[]).slice(0, showFullLog ? 80 : 8);
@@ -870,7 +916,7 @@ document.getElementById('hhtable').addEventListener('click', e => {
 });
 
 /* ---------- vacancy side panel ---------- */
-const EVC = {found:'', filtered:'red', queued:'blue', skipped:'', new:'', applied:'green', letter:'green', form:'blue', attention:'accent', error:'red', employer:'accent'};
+const EVC = {found:'', filtered:'red', queued:'blue', skipped:'', new:'', applied:'green', letter:'green', form:'blue', attention:'accent', error:'red', employer:'accent', stage:'green', plan:'blue', followup:'blue'};
 async function openDrawer(id){
   const v = await api('/api/vacancies/'+id);
   const date = ts => ts ? new Date(ts).toLocaleString('ru-RU', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : '';
@@ -890,7 +936,8 @@ async function openDrawer(id){
     <div class="row" style="margin-top:14px"><a class="btn sm" href="${esc(v.url)}" target="_blank">${ic('external')}Открыть на hh</a>
       ${v.status==='new'?`<button class="btn sm primary" onclick="drawerSet(${v.id},'queued')">Откликнуться</button><button class="btn sm" onclick="drawerSet(${v.id},'skipped')">Пропустить</button>`:''}
       ${v.status==='skipped'?`<button class="btn sm" onclick="drawerSet(${v.id},'new')">Вернуть в новые</button>`:''}</div>
-    <h4>История</h4><div class="tl">${ev.map(e => `<div class="ev ${EVC[e.kind]||''}">${esc(e.text)}<time>${date(e.ts)}</time></div>`).join('')}</div>
+    ${v.status==='applied' ? pipeBlock(v) : ''}
+    <h4>История</h4><div class="tl">${ev.map(e => `<div class="ev ${EVC[e.kind]||''}">${esc(gentle(e.text))}<time>${date(e.ts)}</time></div>`).join('')}</div>
     ${v.match_info.length ? `<h4>Почему ${v.status==='skipped'&&v.match_info.some(r=>!r.ok)?'не прошла':'прошла'} фильтры</h4><ul class="why">${v.match_info.map(r => `<li class="${r.ok?'ok':'no'}">${ic(r.ok?'check':'x')}<span>${esc(r.text)}</span></li>`).join('')}</ul>`
       : `<h4>Фильтры</h4><p class="hint" style="margin:0">Вакансия найдена до появления умных фильтров, причины не записаны</p>`}
     ${v.applied_at || v.resume ? `<h4>Отклик</h4><div class="qa"><div class="t2">Резюме</div>${esc(v.resume || 'неизвестно')}</div>` : ''}
@@ -905,6 +952,92 @@ async function openDrawer(id){
 function closeDrawer(){ $('#drawer').classList.remove('on') }
 async function drawerSet(id, status){ await api('/api/vacancies/status', {ids:[id], status}); toast(status==='queued' ? 'В очереди на отклик' : 'Готово'); openDrawer(id); loadHH() }
 document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeDrawer(); if($('#review').classList.contains('on')) closeReview() } });
+
+/* ---------- pipeline ---------- */
+const STAGE_COLORS = {applied:'var(--muted)', viewed:'var(--blue)', invited:'var(--green)', interview:'var(--green)', offer:'var(--accent)', declined:'var(--line)'};
+const STAGE_PARTY = {invited:'Приглашение! Вас заметили — это ваш результат 🎉', interview:'Собеседование! Подготовьтесь спокойно, у вас всё получится 💪', offer:'Оффер! Поздравляем, это большая победа 🎉'};
+let PIPE = null, dragId = null;
+const whenText = at => { if(!at) return ''; const d = new Date(at), t = new Date(), tm = new Date(); tm.setDate(t.getDate()+1);
+  const hm = d.toTimeString().slice(0,5), same = (a,b) => a.toDateString()===b.toDateString();
+  return same(d,t) ? 'Сегодня ' + hm : same(d,tm) ? 'Завтра ' + hm : d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}) + ' ' + hm };
+const daysAgo = ts => { const n = Math.floor((Date.now() - new Date(ts).getTime())/864e5); return n<=0 ? 'сегодня' : n===1 ? 'вчера' : `${n} ${plural(n,'день','дня','дней')} назад` };
+async function loadPipe(){
+  PIPE = await api('/api/pipeline');
+  const by = st => PIPE.cards.filter(c => (c.stage||'applied') === st);
+  const active = PIPE.cards.filter(c => !['declined'].includes(c.stage)).length, good = PIPE.cards.filter(c => ['invited','interview','offer'].includes(c.stage)).length;
+  $('#pipesum').textContent = `${active} в процессе · ${good} ${plural(good,'приглашение','приглашения','приглашений')} и дальше`;
+  $('#board').innerHTML = PIPE.stages.map(st => { const cards = by(st.id); return `<div class="col ${st.id==='declined'?'soft':''}" data-stage="${st.id}">
+      <h3><span class="dotc" style="background:${STAGE_COLORS[st.id]}"></span>${st.label}<span class="n">${cards.length}</span></h3>
+      ${cards.map(c => `<div class="pcard" draggable="true" data-id="${c.id}"><b>${esc(c.title)}</b><div class="t2">${esc(c.company)}</div>
+        ${c.next_at ? `<div class="nx ${new Date(c.next_at) < new Date() ? 'late' : ''}">${ic('calendar')}${esc(whenText(c.next_at))}${c.next_step ? ' · ' + esc(c.next_step) : ''}</div>`
+          : `<div class="t2" style="margin-top:6px">${c.applied_at || c.created_at ? 'отклик ' + daysAgo(c.applied_at || c.created_at) : ''}${c.notes ? ' · 📝' : ''}</div>`}</div>`).join('')
+        || `<div class="t2" style="text-align:center;padding:14px 6px">${st.id==='offer' ? 'Скоро здесь будет ваш оффер ✨' : st.id==='declined' ? 'Пусто — и это хорошо' : 'Перетащите сюда карточку'}</div>`}
+    </div>` }).join('');
+}
+const board = document.getElementById('board');
+board.addEventListener('dragstart', e => { const c = e.target.closest('.pcard'); if(!c) return; dragId = +c.dataset.id; c.classList.add('drag'); e.dataTransfer.effectAllowed = 'move' });
+board.addEventListener('dragend', e => { const c = e.target.closest('.pcard'); if(c) c.classList.remove('drag'); document.querySelectorAll('.col.over').forEach(x => x.classList.remove('over')) });
+board.addEventListener('dragover', e => { const col = e.target.closest('.col'); if(!col) return; e.preventDefault(); document.querySelectorAll('.col.over').forEach(x => x !== col && x.classList.remove('over')); col.classList.add('over') });
+board.addEventListener('drop', async e => { const col = e.target.closest('.col'); if(!col || !dragId) return; e.preventDefault(); col.classList.remove('over');
+  const card = PIPE.cards.find(c => c.id === dragId); if(card && card.stage !== col.dataset.stage) await setStage(dragId, col.dataset.stage); dragId = null });
+board.addEventListener('click', e => { const c = e.target.closest('.pcard'); if(c) openDrawer(+c.dataset.id) });
+async function setStage(id, stage){
+  await api(`/api/vacancies/${id}/pipeline`, {stage});
+  if(STAGE_PARTY[stage]){ confetti(); toast(STAGE_PARTY[stage], 'party') }
+  else if(stage==='declined') toast('Не в этот раз. Опыт засчитан, идём дальше', 'info');
+  else toast('Этап обновлён');
+  if(tab==='pipe') loadPipe(); if($('#drawer').classList.contains('on')) openDrawer(id); poll();
+}
+function pipeBlock(v){
+  const stages = [['applied','Отклик'],['viewed','Просмотрен'],['invited','Приглашение'],['interview','Собеседование'],['offer','Оффер'],['declined','Не сейчас']];
+  const cur = v.stage || 'applied', local = v.next_at ? v.next_at.slice(0,16) : '';
+  return `<h4>Этап</h4><div class="stagepick">${stages.map(([id,l]) => `<button class="${id===cur?'on':''}" onclick="setStage(${v.id},'${id}')">${l}</button>`).join('')}</div>
+    ${v.stage_manual ? '<p class="hint">Этап выставлен вручную. Ответы с hh его не откатят назад</p>' : ''}
+    <h4>Следующий шаг</h4>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px"><input id="nxStep" placeholder="Собеседование, тестовое…" value="${esc(v.next_step||'')}"><input id="nxAt" type="datetime-local" value="${esc(local)}"></div>
+    <p class="hint">Напомню на Mac за сутки и за час</p>
+    <h4>Заметки</h4><textarea id="nxNotes" style="min-height:80px" placeholder="Имя рекрутера, вопросы, впечатления…">${esc(v.notes||'')}</textarea>
+    <div class="row" style="margin-top:10px"><button class="btn primary sm" onclick="savePipe(${v.id})">Сохранить</button>
+      ${v.next_at ? `<button class="btn ghost sm" onclick="clearNext(${v.id})">Убрать шаг</button>` : ''}</div>
+    ${v.followup==='sent' ? '<p class="hint">Вы уже напоминали о себе в чате</p>' : ''}`;
+}
+async function savePipe(id){
+  const at = $('#nxAt').value;
+  await api(`/api/vacancies/${id}/pipeline`, {next_step: $('#nxStep').value, next_at: at ? at + ':00' : '', notes: $('#nxNotes').value});
+  toast(at ? `Запомнил. Напомню ${whenText(at).toLowerCase()}` : 'Сохранено'); openDrawer(id); if(tab==='pipe') loadPipe(); if(tab==='dash') loadDash();
+}
+async function clearNext(id){ await api(`/api/vacancies/${id}/pipeline`, {next_step:'', next_at:''}); openDrawer(id); refresh() }
+
+/* reminders on «Сегодня» */
+async function loadReminders(){
+  const r = await api('/api/reminders'); const rows = [];
+  r.past.forEach(p => rows.push(`<div class="rem"><div class="when soft">${esc(whenText(p.next_at).replace(' ','<br>'))}</div><div class="m"><b>Как прошло? ${esc(p.next_step||'')}</b><div class="t2">${esc(p.company)} · ${esc(p.title)}</div></div>
+    <button class="btn sm" onclick="openDrawer(${p.id})">Отметить итог</button></div>`));
+  r.upcoming.forEach(p => rows.push(`<div class="rem"><div class="when">${whenText(p.next_at).replace(' ','<br>')}</div><div class="m"><b>${esc(p.next_step||'Следующий шаг')}</b><div class="t2">${esc(p.company)} · ${esc(p.title)}</div></div>
+    <button class="btn ghost sm" onclick="openDrawer(${p.id})">Открыть</button></div>`));
+  r.followups.slice(0,5).forEach(f => rows.push(`<div class="rem"><div class="when soft">${ic('clock')}</div><div class="m"><b>${daysAgo(f.sent).replace(' назад','')} без ответа — напомнить о себе?</b><div class="t2">${esc(f.company)} · ${esc(f.title)}</div></div>
+    <div class="row" style="flex-wrap:nowrap"><button class="btn sm" onclick="openFollowup(${f.id})">Написать</button><button class="btn ghost sm" title="Не нужно" onclick="followupSkip(${f.id})">${ic('x')}</button></div></div>`));
+  if(r.followups.length > 5) rows.push(`<p class="hint">и ещё ${r.followups.length-5} без ответа</p>`);
+  $('#remcard').style.display = rows.length ? '' : 'none'; $('#remlist').innerHTML = rows.join('');
+}
+async function openFollowup(id){
+  const d = await api(`/api/vacancies/${id}/followup_draft`);
+  $('#mtitle').textContent = 'Напомнить о себе'; $('#mtext').innerHTML = `<span class="t2">Сообщение уйдёт в чат вакансии на hh. Можно поправить текст</span><textarea id="fuText" style="margin-top:10px;min-height:150px">${esc(d.text)}</textarea>`;
+  $('#myes').textContent = 'Отправить'; $('#modal').classList.add('on');
+  $('#mno').onclick = () => $('#modal').classList.remove('on');
+  $('#myes').onclick = async () => { const text = $('#fuText').value; $('#modal').classList.remove('on');
+    const r = await api(`/api/vacancies/${id}/followup`, {action:'send', text}); toast(r.started ? 'Отправляю напоминание…' : 'Бот занят, отправлю, как освободится', 'info'); loadReminders() };
+}
+async function followupSkip(id){ await api(`/api/vacancies/${id}/followup`, {action:'dismissed'}); loadReminders(); poll() }
+
+/* soft streak: a single missed day is forgiven */
+function softStreak(byDay){
+  const act = new Set(byDay.filter(d => d.hh > 0 || d.mail > 0).map(d => d.d)), d = new Date(); let n = 0, miss = 0;
+  if(!act.has(today())) d.setDate(d.getDate()-1);
+  for(let i = 0; i < 120; i++){ const k = d.toLocaleDateString('sv-SE');
+    if(act.has(k)){ n++; miss = 0 } else if(++miss > 1) break; d.setDate(d.getDate()-1) }
+  return n;
+}
 
 /* ---------- review: swipe through fresh vacancies ---------- */
 let RV = {items:[], i:0, yes:0, no:0, hist:[]};
@@ -1001,7 +1134,7 @@ async function loadAnswers(){
   $('#qcard').style.display = qs.length ? '' : 'none';
   $('#qtable').innerHTML = qs.map(q => `<div class="feed"><div class="it"><div class="ico amber" style="background:var(--amber-soft);color:var(--amber)">${ic('alert')}</div>
     <div class="m">${esc(q.text)}<div class="t2">${q.source==='chat'?'из чата':'из анкеты'} · встречался ${q.seen} ${plural(q.seen,'раз','раза','раз')}</div></div>
-    <div class="row" style="flex-wrap:nowrap"><button class="btn sm" onclick='addAnswer(${JSON.stringify(q.text.slice(0,60))}); delQ(${q.id}, true)'>Ответить</button>
+    <div class="row" style="flex-wrap:nowrap"><button class="btn sm" data-q="${esc(q.text.slice(0,60))}" onclick="addAnswer(this.dataset.q); delQ(${q.id}, true)">Ответить</button>
     <button class="btn ghost sm" title="Убрать" onclick="delQ(${q.id})">${ic('x')}</button></div></div></div>`).join('');
 }
 const ansRow = a => `<div class="ans" data-id="${a.id||''}"><div class="st">${ic('check')}</div><div>
@@ -1080,7 +1213,7 @@ async function loadOther(){
   const rows = (await api('/api/vacancies')).filter(v => v.source !== 'hh');
   const names = {habr:'Habr',superjob:'SuperJob',linkedin:'LinkedIn',other:'Сайт компании'};
   $('#otable').innerHTML = rows.map(v => `<tr><td><input type="checkbox" value="${v.id}"></td>
-    <td><a href="${esc(v.url)}" target="_blank">${esc(v.title)}</a><div class="t2">${esc(v.company)}</div></td><td class="hide-m t2">${names[v.source]||v.source}</td><td>${pill(v.status)}</td></tr>`).join('')
+    <td><a href="${esc(v.url)}" target="_blank">${esc(v.title)}</a><div class="t2">${esc(v.company)}</div></td><td class="hide-m t2">${esc(names[v.source]||v.source)}</td><td>${pill(v.status)}</td></tr>`).join('')
     || `<tr><td colspan=4><div class="empty"><div class="em">🧭</div><b>Трекер пуст</b>Добавьте ссылку на вакансию, чтобы не потерять её</div></td></tr>`;
   selUI('otable','osel','oselc');
 }
@@ -1104,7 +1237,7 @@ async function loadStats(){
   const days = [...Array(14)].map((_,i) => { const t = new Date(); t.setDate(t.getDate()-13+i); const k = t.toLocaleDateString('sv-SE'); const r = d.by_day.find(x => x.d===k) || {hh:0, mail:0}; return {k, t, n: r.hh + r.mail} });
   const mx = Math.max(1, ...days.map(x => x.n));
   $('#days').innerHTML = days.map(x => `<div title="${x.k}: ${x.n}"><small>${x.n||''}</small><i class="${x.k===today()?'today':''}" style="height:${x.n*80/mx}%"></i><small>${x.t.getDate()}</small></div>`).join('');
-  $('#st_resume').innerHTML = d.by_resume.length ? `<table><tr><th>Резюме</th><th>Откликов</th><th>Приглашений</th><th>Отказов</th></tr>` + d.by_resume.map(r => `<tr><td>${esc(r.resume)}</td><td>${r.n}</td><td>${r.invites||0}</td><td>${r.discards||0}</td></tr>`).join('') + '</table>'
+  $('#st_resume').innerHTML = d.by_resume.length ? `<table><tr><th>Резюме</th><th>Откликов</th><th>Приглашений</th><th>Не сейчас</th></tr>` + d.by_resume.map(r => `<tr><td>${esc(r.resume)}</td><td>${r.n}</td><td>${r.invites||0}</td><td>${r.discards||0}</td></tr>`).join('') + '</table>'
     : `<div class="empty"><div class="em">📄</div>Данных пока нет</div>`;
   $('#st_skip').innerHTML = d.skipped.length ? `<table>` + d.skipped.map(r => `<tr><td>${esc(r.note || 'без причины')}</td><td style="text-align:right"><b>${r.n}</b></td></tr>`).join('') + '</table>'
     : `<div class="empty"><div class="em">👌</div><b>Всё прошло гладко</b></div>`;
@@ -1117,13 +1250,14 @@ async function poll(){
   STATUS = s;
   $('#activity').classList.toggle('on', s.running); if(s.running) $('#actname').textContent = s.job + '…';
   $('#chatbadge').style.display = s.chats_pending ? '' : 'none'; $('#chatbadge').textContent = s.chats_pending;
+  $('#pipebadge').style.display = s.reminders ? '' : 'none'; $('#pipebadge').textContent = s.reminders;
   apUI();
   $('#noletter').style.display = s.no_letter ? 'flex' : 'none';
   $('#noletterT').textContent = `${s.no_letter} ${plural(s.no_letter,'отклик ушёл','отклика ушли','откликов ушли')} без сопроводительного письма`;
   if(wasRunning && !s.running){
     if(runSnap){ const a = (s.vacancies.applied||0) - runSnap.applied, m = (s.companies.sent||0) - runSnap.sent, nv = (s.vacancies.new||0) - runSnap.newv;
-      if(a > 0) toast(`Отправлено ${a} ${plural(a,'отклик','отклика','откликов')}! Так держать 🎉`, 'party');
-      else if(m > 0) toast(`Отправлено ${m} ${plural(m,'письмо','письма','писем')} ✉️`, 'party');
+      if(a > 0) toast(`Отправлено ${a} ${plural(a,'отклик','отклика','откликов')}`);
+      else if(m > 0) toast(`Отправлено ${m} ${plural(m,'письмо','письма','писем')}`);
       else if(runSnap.name==='hh_search') toast(nv > 0 ? `Найдено ${nv} ${plural(nv,'новая вакансия','новые вакансии','новых вакансий')}` : 'Новых вакансий не появилось. Загляну позже', nv>0?'ok':'info');
       else toast('Готово');
       runSnap = null; }

@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 
 import answers
 import db
+import pipeline
 from jobs import job
 
 PROFILE_DIR = db.DATA_DIR / "browser_profile"
@@ -448,7 +449,7 @@ def apply_queue():
             if job.stop_requested:
                 db.log("Остановлено пользователем")
                 break
-            done_today = db.count_today("vacancies", "applied_at", "applied")
+            done_today = db.count_today("vacancies", "applied_at", "applied", "AND source='hh'")
             if done_today >= limit:
                 db.log(f"hh: достигнут дневной лимит ({limit}). Остальное завтра")
                 break
@@ -551,6 +552,8 @@ def sync_responses():
                     )
                     if state != row[0]["hh_state"]:
                         db.event(row[0]["id"], "employer", f"Работодатель: {state}")
+                    pipeline.ensure_stages()
+                    pipeline.advance_from_hh(row[0]["id"], state)
                 else:
                     added += db.x(
                         "INSERT OR IGNORE INTO vacancies(source, ext_id, url, title, company, status, note, "
@@ -565,6 +568,7 @@ def sync_responses():
                             db.x("UPDATE vacancies SET invited_at=? WHERE id=?", (db.now(), new_id[0]["id"]))
                         db.event(new_id[0]["id"], "applied", f"Отклик сделан вне бота ({it['date']})")
                         db.event(new_id[0]["id"], "employer", f"Работодатель: {state}")
+                        pipeline.ensure_stages()
             page.wait_for_timeout(random.randint(1200, 2500))
         ctx.close()
     db.log(f"hh: синхронизация откликов — всего {seen}, обновлено {updated}, добавлено {added}")
@@ -598,5 +602,34 @@ def send_missing_letters():
                 db.x("UPDATE vacancies SET letter_sent=1, letter=? WHERE id=?", (letter, v["id"]))
                 db.event(v["id"], "letter", "Письмо дослано в чат вакансии")
             db.log(f"hh: письмо к «{v['title']}» — {v['company']}: {'отправлено в чат ✓' if ok else 'не удалось отправить'}")
+            page.wait_for_timeout(random.randint(3000, 6000))
+        ctx.close()
+
+
+def send_followups():
+    """Send the follow-ups you approved («напомнить о себе») to the vacancy chats."""
+    s = db.get_settings()
+    domain = s["hh_domain"]
+    rows = db.q("SELECT * FROM vacancies WHERE followup='approved' ORDER BY id")
+    if not rows:
+        return
+    with sync_playwright() as p:
+        ctx, page = _open(p)
+        if not is_logged_in(page, domain):
+            db.log("hh: вы не вошли в аккаунт — нажмите «Войти в hh»")
+            ctx.close()
+            return
+        for v in rows:
+            if job.stop_requested:
+                break
+            ok = False
+            try:
+                ok = _letter_via_chat(page, domain, v["followup_text"], v["title"], v["company"])
+            except Exception as e:
+                db.log(f"hh: {v['title']}: ошибка {e}")
+            if ok:
+                db.x("UPDATE vacancies SET followup='sent', followup_at=? WHERE id=?", (db.now(), v["id"]))
+                db.event(v["id"], "followup", "Вы напомнили о себе в чате")
+            db.log(f"hh: напоминание о себе — {v['company']}: {'отправлено ✓' if ok else 'не удалось, попробую позже'}")
             page.wait_for_timeout(random.randint(3000, 6000))
         ctx.close()

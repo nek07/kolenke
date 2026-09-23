@@ -25,7 +25,7 @@ def parse_salary(text):
         return None, None
     if len(nums) >= 2:
         return nums[0], nums[1]
-    if "до" in t and "от" not in t:
+    if re.search(r"\bдо\s*\d", t) and not re.search(r"\bот\s*\d", t):
         return None, nums[0]
     return nums[0], None
 

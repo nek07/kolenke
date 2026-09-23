@@ -19,7 +19,9 @@ AUTO_NOTICES = (
 def notify(text):
     """macOS notification, so the user knows something needs their answer."""
     try:
-        subprocess.run(["osascript", "-e", f'display notification "{text}" with title "JobBot"'], timeout=5)
+        # the text comes from employers (company names, messages): pass it as data, never as AppleScript source
+        subprocess.run(["osascript", "-e", "on run argv", "-e", 'display notification (item 1 of argv) with title "JobBot"',
+                        "-e", "end run", str(text)[:250]], timeout=5)
     except Exception:
         pass
 
@@ -83,6 +85,12 @@ def _robot_active(messages):
     return active
 
 
+def needs_reply(text, robot) -> bool:
+    """A question, or any message from a live person that isn't a stock notice («рассмотрит резюме», отказ...)."""
+    low = (text or "").lower()
+    return "?" in low or not (robot or any(p in low for p in AUTO_NOTICES))
+
+
 def _pending_incoming(messages):
     """Incoming (non-own, non-system) messages after our last message."""
     out = []
@@ -142,8 +150,7 @@ def _handle_chat(page, domain, chat_id, auto):
             db.log(f"Чат {chat['company']}: не удалось отправить ответ, передаю вам")
 
         # automatic notices ("компания рассмотрит резюме", "спасибо, ответы отправлены") need no reply
-        low = last["text"].lower()
-        is_question = "?" in low or not (robot or any(p in low for p in AUTO_NOTICES))
+        is_question = needs_reply(last["text"], robot)
         if robot and is_question and not answer:
             answers.remember_unknown(last["text"], "chat")
         db.x(

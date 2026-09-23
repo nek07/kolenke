@@ -1,10 +1,12 @@
+import os
 import sqlite3
 import threading
 from datetime import datetime, date, timedelta
 from pathlib import Path
 
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(os.environ.get("JOBBOT_DATA") or Path(__file__).parent / "data")
 DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR.chmod(0o700)  # Gmail app password and the hh session live here: not for other users of this Mac
 DB_PATH = DATA_DIR / "jobbot.db"
 
 _lock = threading.Lock()
@@ -127,6 +129,12 @@ DEFAULTS = {
     "autopilot_from": "8",
     "autopilot_to": "22",
     "chat_auto": "1",         # answer HR robots automatically when the answer base has an answer
+    "followup_days": "5",     # suggest reminding about yourself after this many days without a reaction
+    "followup_template": (
+        "Здравствуйте! Несколько дней назад я откликнулся(ась) на вакансию «{position}». "
+        "Подскажите, пожалуйста, актуальна ли она и удобно ли обсудить мою кандидатуру? "
+        "Буду рад(а) ответить на любые вопросы.\n\nС уважением,\n{name}"
+    ),
 }
 
 DEFAULT_ANSWERS = [
@@ -168,25 +176,40 @@ MIGRATIONS = [
     ("vacancies", "match_info", "TEXT"),    # json [{ok, text}] why the vacancy passed (or failed) the filters
     ("vacancies", "invited_at", "TEXT"),    # first time an invitation was seen
     ("vacancies", "reviewed_at", "TEXT"),   # when you swiped it in the review
+    # after the response: pipeline card
+    ("vacancies", "stage", "TEXT"),         # applied, viewed, invited, interview, offer, declined (see pipeline.py)
+    ("vacancies", "stage_manual", "INTEGER"),  # 1 = you moved it yourself, hh sync won't pull it back
+    ("vacancies", "stage_at", "TEXT"),
+    ("vacancies", "notes", "TEXT"),
+    ("vacancies", "next_step", "TEXT"),     # e.g. «Собеседование»
+    ("vacancies", "next_at", "TEXT"),       # local datetime of the next step
+    ("vacancies", "remind_day", "INTEGER"), # 1 = «завтра …» notification shown
+    ("vacancies", "remind_hour", "INTEGER"),
+    ("vacancies", "followup", "TEXT"),      # approved, sent, done, dismissed
+    ("vacancies", "followup_text", "TEXT"),
+    ("vacancies", "followup_at", "TEXT"),
 ]
 
 INVITE_STATES = ("приглашение", "собеседование", "выход на работу")
 
 
 def init():
-    with _lock, connect() as c:
-        c.executescript(SCHEMA)
-        for table, col, typ in MIGRATIONS:
-            if col not in {r[1] for r in c.execute(f"PRAGMA table_info({table})")}:
-                c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
-        c.execute(
-            f"UPDATE vacancies SET invited_at=COALESCE(hh_state_at, applied_at, created_at) "
-            f"WHERE invited_at IS NULL AND hh_state IN ({','.join('?' * len(INVITE_STATES))})", INVITE_STATES
-        )
-        for k, v in DEFAULTS.items():
-            c.execute("INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)", (k, v))
-        if not c.execute("SELECT COUNT(*) FROM answers").fetchone()[0]:
-            c.executemany("INSERT INTO answers(topic, keywords, answer) VALUES (?, ?, '')", DEFAULT_ANSWERS)
+    with _lock:
+        c = connect()
+        with c:
+            c.executescript(SCHEMA)
+            for table, col, typ in MIGRATIONS:
+                if col not in {r[1] for r in c.execute(f"PRAGMA table_info({table})")}:
+                    c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+            c.execute(
+                f"UPDATE vacancies SET invited_at=COALESCE(hh_state_at, applied_at, created_at) "
+                f"WHERE invited_at IS NULL AND hh_state IN ({','.join('?' * len(INVITE_STATES))})", INVITE_STATES
+            )
+            for k, v in DEFAULTS.items():
+                c.execute("INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)", (k, v))
+            if not c.execute("SELECT COUNT(*) FROM answers").fetchone()[0]:
+                c.executemany("INSERT INTO answers(topic, keywords, answer) VALUES (?, ?, '')", DEFAULT_ANSWERS)
+        c.close()
 
 
 def now():
@@ -194,14 +217,22 @@ def now():
 
 
 def q(sql, args=()):
-    with _lock, connect() as c:
-        return [dict(r) for r in c.execute(sql, args).fetchall()]
+    with _lock:
+        c = connect()
+        try:
+            return [dict(r) for r in c.execute(sql, args).fetchall()]
+        finally:
+            c.close()
 
 
 def x(sql, args=()):
-    with _lock, connect() as c:
-        cur = c.execute(sql, args)
-        return cur.rowcount
+    with _lock:
+        c = connect()
+        try:
+            with c:  # commits, or rolls back on error
+                return c.execute(sql, args).rowcount
+        finally:
+            c.close()
 
 
 def event(vacancy_id, kind: str, text: str):
@@ -229,9 +260,9 @@ def log(msg: str):
     x("INSERT INTO log(ts, msg) VALUES (?, ?)", (now(), msg))
 
 
-def count_today(table: str, col: str, status: str) -> int:
+def count_today(table: str, col: str, status: str, where: str = "") -> int:
     today = date.today().isoformat()
-    return q(f"SELECT COUNT(*) n FROM {table} WHERE status=? AND {col} LIKE ?", (status, today + "%"))[0]["n"]
+    return q(f"SELECT COUNT(*) n FROM {table} WHERE status=? AND {col} LIKE ? {where}", (status, today + "%"))[0]["n"]
 
 
 def fill(template: str, **kw) -> str:

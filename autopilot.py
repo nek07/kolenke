@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import chat_bot
 import db
 import hh_bot
+import pipeline
 from jobs import job
 
 state = {"last_run": None, "next_run": None}
@@ -46,6 +47,10 @@ def cycle():
 def _loop():
     while True:
         time.sleep(20)
+        try:
+            pipeline.notify_due(chat_bot.notify)
+        except Exception as e:
+            db.log(f"Напоминания: ошибка {e}")
         try:
             s = db.get_settings()
             if s["autopilot_on"] != "1":

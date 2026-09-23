@@ -1,23 +1,45 @@
 import csv
 import io
 import json
+import os
 import re
+from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse, Response
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 import autopilot
 import chat_bot
 import db
 import hh_bot
+import pipeline
 import mailer
 from jobs import job
 
 db.init()
 app = FastAPI(title="JobBot")
-autopilot.start()
+if not os.environ.get("JOBBOT_NO_BACKGROUND"):  # tests run without the scheduler
+    autopilot.start()
+
+LOCAL_HOSTS = {"127.0.0.1", "localhost"}
+
+
+@app.middleware("http")
+async def local_only(request: Request, call_next):
+    """The server acts on your hh account and Gmail, so only JobBot's own page may use it:
+    - Host must be localhost (blocks DNS-rebinding pages from reading data);
+    - state-changing requests need the X-JobBot header, which other sites can't send without a CORS preflight
+      that this server never allows (blocks cross-site «click here» requests)."""
+    host = (request.headers.get("host") or "").rsplit(":", 1)[0].strip("[]")
+    if host not in LOCAL_HOSTS:
+        return JSONResponse({"detail": "Доступ только с этого компьютера"}, status_code=403)
+    if request.method not in ("GET", "HEAD", "OPTIONS"):
+        origin = request.headers.get("origin")
+        if request.headers.get("x-jobbot") != "1" or (origin and origin.split("//")[-1].rsplit(":", 1)[0] not in LOCAL_HOSTS):
+            return JSONResponse({"detail": "Запрос отклонён"}, status_code=403)
+    return await call_next(request)
 STATIC = Path(__file__).parent / "static"
 RESUME_DIR = db.DATA_DIR / "resume"
 RESUME_DIR.mkdir(exist_ok=True)
@@ -151,6 +173,60 @@ def vacancy_detail(vid: int):
     }
 
 
+# ---------- pipeline (after the response) ----------
+@app.get("/api/pipeline")
+def get_pipeline():
+    pipeline.ensure_stages()
+    return {
+        "stages": [{"id": s, "label": pipeline.LABELS[s]} for s in pipeline.STAGES],
+        "cards": db.q(
+            "SELECT id, source, url, title, company, stage, stage_manual, stage_at, notes, next_step, next_at, "
+            "hh_state, applied_at, created_at, followup FROM vacancies WHERE status='applied' "
+            "ORDER BY COALESCE(next_at, '9999'), COALESCE(stage_at, applied_at, created_at) DESC"
+        ),
+    }
+
+
+@app.post("/api/vacancies/{vid}/pipeline")
+def set_pipeline(vid: int, data: dict):
+    try:
+        v = pipeline.update(vid, data)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    if not v:
+        raise HTTPException(404)
+    return v
+
+
+@app.get("/api/reminders")
+def get_reminders():
+    return pipeline.reminders()
+
+
+@app.post("/api/vacancies/{vid}/followup")
+def followup(vid: int, data: dict):
+    action = data.get("action")
+    if action == "send":
+        text = (data.get("text") or "").strip()
+        if not text:
+            raise HTTPException(400, "Пустое сообщение")
+        db.x("UPDATE vacancies SET followup='approved', followup_text=? WHERE id=?", (text, vid))
+        started = job.start("Напоминания о себе", hh_bot.send_followups)
+        return {"ok": True, "started": started}
+    if action in ("done", "dismissed"):
+        db.x("UPDATE vacancies SET followup=?, followup_at=? WHERE id=?", (action, db.now(), vid))
+        return {"ok": True}
+    raise HTTPException(400)
+
+
+@app.get("/api/vacancies/{vid}/followup_draft")
+def followup_draft(vid: int):
+    v = db.q("SELECT title, company FROM vacancies WHERE id=?", (vid,))
+    if not v:
+        raise HTTPException(404)
+    return {"text": db.fill(db.get_settings()["followup_template"], company=v[0]["company"], position=v[0]["title"])}
+
+
 @app.post("/api/vacancies/delete")
 def vacancies_delete(data: dict):
     for i in data.get("ids") or []:
@@ -274,6 +350,7 @@ JOBS = {
     "hh_apply": ("Отклики hh", hh_bot.apply_queue),
     "hh_sync": ("Статусы откликов hh", hh_bot.sync_responses),
     "hh_letters": ("Письма к откликам", hh_bot.send_missing_letters),
+    "hh_followups": ("Напоминания о себе", hh_bot.send_followups),
     "chat_check": ("Чаты hh", chat_bot.run),
     "autopilot_now": ("Автопилот", autopilot.cycle),
     "mail_send": ("Рассылка резюме", mailer.send_queue),
@@ -295,6 +372,12 @@ def start_job(name: str):
         raise HTTPException(409, f"Уже выполняется: {job.name}")
     db.log(f"▶ {title}")
     return {"ok": True}
+
+
+def _reminder_count():
+    r = pipeline.reminders()
+    today_end = datetime.now().replace(hour=23, minute=59).isoformat(timespec="seconds")
+    return len(r["followups"]) + len(r["past"]) + sum(1 for u in r["upcoming"] if u["next_at"] <= today_end)
 
 
 def week_stats():
@@ -322,12 +405,13 @@ def status():
         "log": db.q("SELECT ts, msg FROM log ORDER BY id DESC LIMIT 80"),
         "vacancies": counts("vacancies"),
         "companies": counts("companies"),
-        "applied_today": db.count_today("vacancies", "applied_at", "applied"),
+        "applied_today": db.count_today("vacancies", "applied_at", "applied", "AND source='hh'"),
         "week": week_stats(),
         "review": db.q("SELECT COUNT(*) n FROM vacancies WHERE source='hh' AND status='new'")[0]["n"],
         "sent_today": db.count_today("companies", "sent_at", "sent"),
         "chats_pending": db.q("SELECT COUNT(*) n FROM chat_items WHERE status='pending'")[0]["n"],
         "attention": db.q("SELECT COUNT(*) n FROM vacancies WHERE status='attention'")[0]["n"],
+        "reminders": _reminder_count(),
         "no_letter": db.q("SELECT COUNT(*) n FROM vacancies WHERE status='applied' AND letter_sent=0")[0]["n"],
         "autopilot_next": autopilot.state["next_run"].strftime("%H:%M") if autopilot.state["next_run"] else None,
     }
