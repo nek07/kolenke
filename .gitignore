@@ -1,0 +1,6 @@
+# personal data: hh browser session (cookies), database, uploaded resume, screenshots
+data/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
