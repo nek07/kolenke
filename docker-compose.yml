@@ -1,0 +1,15 @@
+# Cloud panel on a VPS:  DOMAIN=panel.example.kz docker compose up -d
+# Then create your own invite:  docker compose exec panel python -m relay.manage invite
+services:
+  panel:
+    build: {context: ., dockerfile: relay/Dockerfile}
+    restart: unless-stopped
+    volumes: [panel-data:/data]
+    expose: ["8080"]
+  caddy:  # HTTPS with automatic Let's Encrypt certificates
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: [DOMAIN]
+    volumes: [./relay/Caddyfile:/etc/caddy/Caddyfile:ro, caddy-data:/data]
+volumes: {panel-data: {}, caddy-data: {}}

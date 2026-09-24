@@ -174,3 +174,41 @@ def test_phone_width_has_no_horizontal_scroll(server):
                 .map(e => e.tagName + '.' + (e.className || '').toString().split(' ')[0] + ' «' + (e.innerText || '').slice(0, 25) + '» → ' + Math.round(e.getBoundingClientRect().right))""")
             assert pg.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), f"{t}: {wide[:6]}"
         b.close()
+
+
+def test_other_sites_tab_contacts_to_companies(page, server):
+    import json as _json
+    add_vacancy(ext_id="h1", source="habr", url="https://career.habr.com/vacancies/h1", title="Java Backend", company="IRLIX",
+                salary_text="от 150 000 ₽", location="Москва", country="Россия", remote=1, summary="Микросервисы на Spring",
+                contacts=_json.dumps({"emails": ["hr@irlix.com"], "phones": ["+7 996 953 98 87"], "telegram": ["@IRLIX_hub"]}))
+    add_vacancy(ext_id="e1", source="enbek", url="https://www.enbek.kz/ru/vacancy/x~1", title="Middle Backend", company="KMF",
+                salary_text="от 800 000 тг.", location="г. Алматы", country="Казахстан", contacts=_json.dumps({"emails": []}))
+    page.goto(server)
+    page.click('nav button[data-t="other"]')
+    page.wait_for_selector("#otable tr[data-id]")
+    text = page.inner_text("#otable")
+    assert "hr@irlix.com" in text and "от 150 000 ₽" in text and "можно удалённо" in text
+    page.check("#oOnlyEmail")
+    page.wait_for_timeout(300)
+    assert page.locator("#otable tr[data-id]").count() == 1
+    page.locator("#otable input[type=checkbox]").first.check()
+    page.click("#osel button:has-text('В письма компаниям')")
+    page.wait_for_timeout(400)
+    assert db.q("SELECT name, email, position FROM companies") == [{"name": "IRLIX", "email": "hr@irlix.com", "position": "Java Backend"}]
+    page.locator("#otable tr[data-id]").first.click()
+    page.wait_for_selector("#panel .cts")
+    assert "+7 996 953 98 87" in page.inner_text("#panel")
+    assert not page.errors and not page.bad, (page.errors, page.bad)
+
+
+def test_other_sites_settings_are_reflected(page, server):
+    db.set_settings({"other_sites": "enbek", "hh_query": "backend разработчик", "other_query": ""})
+    page.goto(server)
+    page.click('nav button[data-t="other"]')
+    page.wait_for_timeout(500)
+    on = page.eval_on_selector_all("#osrcpick .chip.on", "els => els.map(e => e.dataset.v)")
+    assert on == ["enbek"]
+    assert "backend разработчик" in page.get_attribute("#oquery", "placeholder")
+    page.click("#osrcpick .chip[data-v='habr']")
+    page.wait_for_timeout(500)
+    assert db.get_settings()["other_sites"] == "enbek,habr"

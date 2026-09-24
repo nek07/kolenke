@@ -194,3 +194,16 @@ def test_code_never_opens_the_one_click_response_url():
     from conftest import ROOT
     for f in ROOT.glob("*.py"):
         assert "vacancy_response?" not in f.read_text(), f.name
+
+
+def test_reply_to_closed_chat_is_dropped_not_retried(monkeypatch):
+    """hh closes the chat after a refusal: the approved reply must not fail every autopilot cycle forever."""
+    import importlib
+    cb = importlib.reload(chat_bot)
+    db.x("INSERT INTO chat_items(chat_id, msg_id, company, message, reply, status, created_at) VALUES "
+         "('c1', 'm1', 'Andersen', 'Отказ', 'Спасибо', 'approved', ?)", (db.now(),))
+    page = type("P", (), {"goto": lambda self, *a, **k: None, "wait_for_timeout": lambda self, ms: None})()
+    monkeypatch.setattr(cb, "_read_chat", lambda page: {"messages": []})
+    monkeypatch.setattr(cb, "can_write", lambda page: False)
+    cb._send_approved(page, "hh.kz")
+    assert db.q("SELECT status FROM chat_items WHERE msg_id='m1'")[0]["status"] == "closed"

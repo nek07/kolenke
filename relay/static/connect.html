@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kolenke — подключение агента</title>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F5F2;--surface:#FFF;--ink:#141414;--ink-2:#4A4A48;--muted:#8A8A85;--line:#E4E3DE;--line-2:#EEEDE9;--accent:#FFD43B;--green:#1F9D62;--green-soft:#E4F5EC;--sans:"Onest",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#121212;--surface:#1B1B1B;--ink:#F2F2EF;--ink-2:#C4C4BF;--muted:#8C8C87;--line:#2E2E2C;--line-2:#262625;--green:#4CC98A;--green-soft:rgba(76,201,138,.14)}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--sans);padding:32px 16px 64px}
+main{max-width:640px;margin:0 auto}
+header{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);border:1.5px solid #141414;display:grid;place-items:center}
+header b{font-weight:800;font-size:19px}
+header .sp{flex:1}
+header a,header button{color:var(--ink-2);font:500 14px var(--sans);background:none;border:0;cursor:pointer;text-decoration:underline}
+h1{font-weight:800;font-size:30px;letter-spacing:-.03em;margin:0 0 6px}
+.sub{color:var(--ink-2);margin:0 0 28px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px}
+.card h2{font-size:17px;margin:0 0 6px}
+ol{margin:10px 0 0;padding-left:20px}
+li{margin-bottom:12px}
+pre{background:#1B1B1A;color:#EDECE6;border-radius:10px;padding:12px 14px;overflow-x:auto;font:13.5px/1.5 var(--mono);margin:8px 0 0;white-space:pre-wrap;word-break:break-all}
+.code{font:800 34px var(--mono);letter-spacing:.12em;padding:10px 0}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1.5px solid #141414;background:var(--accent);color:#141414;font:700 14px var(--sans);cursor:pointer;box-shadow:2px 2px 0 #141414;text-decoration:none}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line);box-shadow:none}
+.status{display:flex;align-items:center;gap:10px;font-weight:600}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.on .dot{background:var(--green);box-shadow:0 0 0 4px var(--green-soft)}
+.muted{color:var(--muted);font-size:13.5px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+td{padding:8px 0;border-bottom:1px solid var(--line-2)}
+</style>
+</head>
+<body>
+<main>
+  <header><div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="7" width="17" height="13" rx="4.5" stroke="#141414" stroke-width="2"/><circle cx="9.5" cy="13.5" r="1.5" fill="#141414"/><circle cx="14.5" cy="13.5" r="1.5" fill="#141414"/><path d="M12 7V4" stroke="#141414" stroke-width="2" stroke-linecap="round"/></svg></div><b>kolenke</b><span class="sp"></span><span class="muted" id="who"></span><button onclick="logout()">Выйти</button></header>
+
+  <h1>Агент на вашем компьютере</h1>
+  <p class="sub">Отклики, письма и чаты выполняет агент на вашем компьютере, поэтому hh видит IP вашей сети, а сессия hh и пароли остаются у вас. Эта панель только передаёт команды.</p>
+
+  <div class="card" id="statecard">
+    <div class="status" id="state"><span class="dot"></span><span>Проверяю…</span></div>
+    <p class="muted" id="statehint" style="margin:8px 0 0"></p>
+    <div class="row" style="margin-top:14px"><a class="btn" href="/" id="openbtn" hidden>Открыть kolenke</a></div>
+  </div>
+
+  <div class="card">
+    <h2>Подключить компьютер</h2>
+    <ol>
+      <li>Нужны Python 3.11+ и папка kolenke на компьютере (в ней есть <code>agent.py</code>).</li>
+      <li><button class="btn ghost" onclick="newCode()">Получить код привязки</button>
+        <div id="codebox" hidden><div class="code" id="code"></div><div class="muted" id="codehint"></div></div></li>
+      <li>В папке kolenke выполните один раз:<pre id="paircmd">…сначала получите код</pre></li>
+      <li>Запускайте агента (или двойным кликом <code>start.command</code>):<pre>.venv/bin/python agent.py</pre>
+        <span class="muted">Пока агент работает, kolenke открывается и здесь, и локально на http://127.0.0.1:8765</span></li>
+    </ol>
+  </div>
+
+  <div class="card" id="agentscard" hidden>
+    <h2>Привязанные компьютеры</h2>
+    <table id="agents"></table>
+  </div>
+
+  <div class="card" id="admincard" hidden>
+    <h2>Пригласить знакомого</h2>
+    <p class="muted" style="margin:0 0 12px">Одноразовый код для регистрации. Отправьте его вместе со ссылкой на панель</p>
+    <div class="row"><button class="btn ghost" onclick="invite()">Создать приглашение</button><span class="code" id="inv" style="font-size:20px"></span></div>
+    <pre id="invlink" hidden></pre>
+  </div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const post = (u, b) => fetch(u, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-JobBot': '1'}, body: JSON.stringify(b || {})}).then(async r => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.detail || 'Ошибка'); return j });
+const when = ts => ts ? new Date(ts).toLocaleString('ru-RU', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'}) : 'ещё не подключался';
+async function refresh() {
+  const r = await fetch('/relay/me'); if (r.status === 401) return location.href = '/login';
+  const me = await r.json();
+  $('#who').textContent = me.email; $('#admincard').hidden = !me.is_admin;
+  $('#statecard').classList.toggle('on', me.online);
+  $('#state').innerHTML = `<span class="dot"></span><span>${me.online ? 'Агент в сети: ' + esc(me.agent) : 'Агент не в сети'}</span>`;
+  $('#statehint').textContent = me.online ? 'Можно работать с телефона или любого браузера' : me.agents.length ? 'Включите компьютер и запустите агента' : 'Привяжите компьютер по шагам ниже';
+  $('#openbtn').hidden = !me.agents.length;
+  $('#agentscard').hidden = !me.agents.length;
+  $('#agents').innerHTML = me.agents.map(a => `<tr><td><b>${esc(a.name)}</b><div class="muted">в сети: ${esc(when(a.last_seen))}</div></td><td style="text-align:right"><button class="btn ghost" onclick="unlink(${a.id})">Отвязать</button></td></tr>`).join('');
+}
+async function newCode() {
+  const r = await post('/relay/pair-code');
+  $('#codebox').hidden = false; $('#code').textContent = r.code; $('#codehint').textContent = `Действует ${r.minutes} минут и только один раз`;
+  $('#paircmd').textContent = `.venv/bin/python agent.py pair ${r.server} ${r.code}`;
+}
+async function unlink(id) { if (!confirm('Отвязать этот компьютер? Агент на нём отключится')) return; await post(`/relay/agents/${id}/delete`); refresh() }
+async function invite() { const r = await post('/relay/invites'); $('#inv').textContent = r.code; $('#invlink').hidden = false; $('#invlink').textContent = `${location.origin}/register?invite=${r.code}` }
+async function logout() { await post('/auth/logout'); location.href = '/login' }
+refresh(); setInterval(refresh, 4000);
+</script>
+</body>
+</html>

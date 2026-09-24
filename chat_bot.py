@@ -20,7 +20,7 @@ def notify(text):
     """macOS notification, so the user knows something needs their answer."""
     try:
         # the text comes from employers (company names, messages): pass it as data, never as AppleScript source
-        subprocess.run(["osascript", "-e", "on run argv", "-e", 'display notification (item 1 of argv) with title "JobBot"',
+        subprocess.run(["osascript", "-e", "on run argv", "-e", 'display notification (item 1 of argv) with title "kolenke"',
                         "-e", "end run", str(text)[:250]], timeout=5)
     except Exception:
         pass
@@ -102,7 +102,18 @@ def _pending_incoming(messages):
     return out
 
 
+def can_write(page) -> bool:
+    """hh removes the message box when the employer closes the chat (e.g. after a refusal)."""
+    try:
+        page.locator('textarea[data-qa="text-input"]').first.wait_for(state="visible", timeout=5000)
+        return True
+    except PWTimeout:
+        return False
+
+
 def _send(page, text) -> bool:
+    if not can_write(page):
+        return False
     before = page.locator('[class*="message_my"]').count()
     box = page.locator('textarea[data-qa="text-input"]').first
     box.fill(text)
@@ -169,8 +180,18 @@ def _send_approved(page, domain):
     for it in db.q("SELECT * FROM chat_items WHERE status='approved' ORDER BY id"):
         if job.stop_requested:
             return
-        page.goto(f"https://{domain}/chat/{it['chat_id']}", wait_until="domcontentloaded")
-        if _read_chat(page) is None or not _send(page, it["reply"]):
+        try:
+            page.goto(f"https://{domain}/chat/{it['chat_id']}", wait_until="domcontentloaded")
+            if _read_chat(page) is not None and not can_write(page):
+                # closed for good: retrying would fail forever and hold up every autopilot cycle
+                db.x("UPDATE chat_items SET status='closed' WHERE id=?", (it["id"],))
+                db.log(f"Чат {it['company']}: работодатель закрыл чат, ответ отправить нельзя")
+                continue
+            ok = _read_chat(page) is not None and _send(page, it["reply"])
+        except Exception as e:
+            ok = False
+            db.log(f"Чат {it['company']}: ошибка {str(e)[:80]}")
+        if not ok:
             db.log(f"Чат {it['company']}: не удалось отправить ответ, попробую в следующий раз")
             continue
         db.x("UPDATE chat_items SET status='sent', sent_at=? WHERE id=?", (db.now(), it["id"]))

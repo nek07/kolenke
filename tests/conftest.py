@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 os.environ["JOBBOT_DATA"] = tempfile.mkdtemp(prefix="jobbot-test-")
 os.environ["JOBBOT_NO_BACKGROUND"] = "1"
+os.environ["RELAY_DATA"] = tempfile.mkdtemp(prefix="relay-test-")
 
 import db  # noqa: E402  (must come after the env vars)
 

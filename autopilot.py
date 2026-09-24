@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import chat_bot
 import db
 import hh_bot
+import other_sites
 import pipeline
 from jobs import job
 
@@ -30,15 +31,25 @@ def cycle():
     elif review:
         n = len(fresh)
         db.log(f"Автопилот: {n} новых подходящих вакансий ждут вашей проверки")
-        chat_bot.notify(f"{n} новых подходящих вакансий. Пролистайте их в JobBot")
+        chat_bot.notify(f"{n} новых подходящих вакансий. Пролистайте их в kolenke")
     else:
         for r in fresh:
             db.x("UPDATE vacancies SET status='queued' WHERE id=?", (r["id"],))
             db.event(r["id"], "queued", "Автопилот поставил в очередь")
         db.log(f"Автопилот: {len(fresh)} свежих вакансий — откликаюсь")
         hh_bot.apply_queue()
+    if not job.stop_requested and db.get_settings()["other_monitor"] == "1":
+        try:
+            n = other_sites.monitor()
+            if n:
+                chat_bot.notify(f"{n} новых вакансий на Хабр Карьере и Enbek. Смотрите «Другие сайты»")
+        except Exception as e:
+            db.log(f"Другие сайты: ошибка {e}")
     if not job.stop_requested:
-        chat_bot.run()
+        try:  # a broken chat must not cancel the rest of the cycle
+            chat_bot.run()
+        except Exception as e:
+            db.log(f"Чаты: ошибка {str(e)[:120]}")
     attention = db.q("SELECT COUNT(*) n FROM vacancies WHERE status='attention' AND applied_at IS NULL AND created_at >= ?", (started,))[0]["n"]
     if attention:
         chat_bot.notify(f"{attention} вакансий с анкетой ждут ваших ответов")

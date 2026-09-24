@@ -129,6 +129,11 @@ DEFAULTS = {
     "autopilot_from": "8",
     "autopilot_to": "22",
     "chat_auto": "1",         # answer HR robots automatically when the answer base has an answer
+    "other_query": "",        # search text for Хабр Карьера / Enbek; empty = desired position
+    "other_sites": "habr,enbek",
+    "other_pages": "2",
+    "other_countries": "",    # e.g. «Казахстан, удалённо»; empty = any country
+    "other_monitor": "1",     # check other sites in every autopilot cycle
     "followup_days": "5",     # suggest reminding about yourself after this many days without a reaction
     "followup_template": (
         "Здравствуйте! Несколько дней назад я откликнулся(ась) на вакансию «{position}». "
@@ -188,6 +193,14 @@ MIGRATIONS = [
     ("vacancies", "followup", "TEXT"),      # approved, sent, done, dismissed
     ("vacancies", "followup_text", "TEXT"),
     ("vacancies", "followup_at", "TEXT"),
+    # other sites (Хабр Карьера, Enbek)
+    ("vacancies", "location", "TEXT"),
+    ("vacancies", "country", "TEXT"),
+    ("vacancies", "remote", "INTEGER"),
+    ("vacancies", "summary", "TEXT"),       # short description
+    ("vacancies", "contacts", "TEXT"),      # json {emails, phones, telegram, person}
+    ("vacancies", "company_url", "TEXT"),
+    ("vacancies", "skills", "TEXT"),
 ]
 
 INVITE_STATES = ("приглашение", "собеседование", "выход на работу")

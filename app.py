@@ -14,12 +14,13 @@ import autopilot
 import chat_bot
 import db
 import hh_bot
+import other_sites
 import pipeline
 import mailer
 from jobs import job
 
 db.init()
-app = FastAPI(title="JobBot")
+app = FastAPI(title="kolenke")
 if not os.environ.get("JOBBOT_NO_BACKGROUND"):  # tests run without the scheduler
     autopilot.start()
 
@@ -28,7 +29,7 @@ LOCAL_HOSTS = {"127.0.0.1", "localhost"}
 
 @app.middleware("http")
 async def local_only(request: Request, call_next):
-    """The server acts on your hh account and Gmail, so only JobBot's own page may use it:
+    """The server acts on your hh account and Gmail, so only kolenke's own page may use it:
     - Host must be localhost (blocks DNS-rebinding pages from reading data);
     - state-changing requests need the X-JobBot header, which other sites can't send without a CORS preflight
       that this server never allows (blocks cross-site «click here» requests)."""
@@ -227,6 +228,11 @@ def followup_draft(vid: int):
     return {"text": db.fill(db.get_settings()["followup_template"], company=v[0]["company"], position=v[0]["title"])}
 
 
+@app.post("/api/vacancies/to_companies")
+def vacancies_to_companies(data: dict):
+    return other_sites.to_companies(data.get("ids") or [])
+
+
 @app.post("/api/vacancies/delete")
 def vacancies_delete(data: dict):
     for i in data.get("ids") or []:
@@ -351,6 +357,7 @@ JOBS = {
     "hh_sync": ("Статусы откликов hh", hh_bot.sync_responses),
     "hh_letters": ("Письма к откликам", hh_bot.send_missing_letters),
     "hh_followups": ("Напоминания о себе", hh_bot.send_followups),
+    "other_search": ("Поиск на других сайтах", other_sites.monitor),
     "chat_check": ("Чаты hh", chat_bot.run),
     "autopilot_now": ("Автопилот", autopilot.cycle),
     "mail_send": ("Рассылка резюме", mailer.send_queue),
@@ -396,6 +403,13 @@ def week_stats():
     }
 
 
+@app.get("/api/agent")
+def agent_state():
+    """Link to the cloud panel as seen from this computer (the token itself never leaves agent.json)."""
+    import agent_link
+    return agent_link.public_state()
+
+
 @app.get("/api/status")
 def status():
     counts = lambda t: {r["status"]: r["n"] for r in db.q(f"SELECT status, COUNT(*) n FROM {t} GROUP BY status")}
@@ -425,7 +439,7 @@ def chats(status: str = "pending"):
 
 @app.get("/api/chats/history")
 def chats_history():
-    return db.q("SELECT * FROM chat_items WHERE status IN ('sent','auto_sent','approved') ORDER BY id DESC LIMIT 300")
+    return db.q("SELECT * FROM chat_items WHERE status IN ('sent','auto_sent','approved','closed') ORDER BY id DESC LIMIT 300")
 
 
 @app.post("/api/chats/{cid}")
