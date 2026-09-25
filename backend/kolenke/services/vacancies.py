@@ -42,7 +42,6 @@ def detail(vid: int) -> dict | None:
         **v,
         "match_info": json.loads(v["match_info"] or "[]"),
         "form_answers": json.loads(v["form_answers"] or "[]"),
-        "contacts": json.loads(v["contacts"]) if v["contacts"] else None,
         "events": events.for_vacancy(vid),
         "chats": _chats_of(v),
     }

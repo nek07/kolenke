@@ -1,32 +1,40 @@
 """Request and response bodies of the HTTP API. The frontend types are generated from these (OpenAPI)."""
-from pydantic import BaseModel, ConfigDict, Field
+import json
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from kolenke.schemas.enums import ChatStatus, CompanyStatus, Stage, VacancyStatus
 
 
-class Ok(BaseModel):
+class ApiModel(BaseModel):
+    """In responses every field is always present, so the OpenAPI schema marks fields with defaults as required
+    there; in request bodies they stay optional."""
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
+
+class Ok(ApiModel):
     ok: bool = True
 
 
-class Ids(BaseModel):
+class Ids(ApiModel):
     ids: list[int] = Field(min_length=1, max_length=5000)
 
 
 # ---------- vacancies ----------
-class Reason(BaseModel):
+class Reason(ApiModel):
     ok: bool
     text: str
 
 
-class Contacts(BaseModel):
+class Contacts(ApiModel):
     emails: list[str] = []
     phones: list[str] = []
     telegram: list[str] = []
     person: str = ""
 
 
-class Vacancy(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+class Vacancy(ApiModel):
+    model_config = ConfigDict(extra="ignore", json_schema_serialization_defaults_required=True)
 
     id: int
     source: str
@@ -59,21 +67,27 @@ class Vacancy(BaseModel):
     summary: str | None = None
     company_url: str | None = None
     skills: str | None = None
+    contacts: Contacts | None = None  # found on other sites: e-mails, phones, Telegram, contact person
+
+    @field_validator("contacts", mode="before")
+    @classmethod
+    def _parse_contacts(cls, v):
+        return json.loads(v) if isinstance(v, str) and v else v or None
 
 
-class VacancyEvent(BaseModel):
+class VacancyEvent(ApiModel):
     ts: str
     kind: str
     text: str
 
 
-class FormAnswer(BaseModel):
+class FormAnswer(ApiModel):
     q: str
     a: str
 
 
-class ChatItem(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+class ChatItem(ApiModel):
+    model_config = ConfigDict(extra="ignore", json_schema_serialization_defaults_required=True)
 
     id: int
     chat_id: str | None = None
@@ -96,12 +110,11 @@ class VacancyDetail(Vacancy):
     followup_text: str | None = None
     match_info: list[Reason] = []
     form_answers: list[FormAnswer] = []
-    contacts: Contacts | None = None
     events: list[VacancyEvent] = []
     chats: list[ChatItem] = []
 
 
-class VacancyAdd(BaseModel):
+class VacancyAdd(ApiModel):
     url: str = Field(pattern=r"^https?://", max_length=2000)
     title: str = ""
     company: str = ""
@@ -113,27 +126,27 @@ class StatusChange(Ids):
     review: bool = False  # the change was made in the review (swipe) screen
 
 
-class QueueNew(BaseModel):
+class QueueNew(ApiModel):
     source: str = "hh"
 
 
-class Count(BaseModel):
+class Count(ApiModel):
     count: int
 
 
-class ToCompaniesResult(BaseModel):
+class ToCompaniesResult(ApiModel):
     added: int
     no_email: int
 
 
 # ---------- pipeline ----------
-class StageInfo(BaseModel):
+class StageInfo(ApiModel):
     id: Stage
     label: str
 
 
-class PipelineCard(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+class PipelineCard(ApiModel):
+    model_config = ConfigDict(extra="ignore", json_schema_serialization_defaults_required=True)
 
     id: int
     source: str
@@ -152,12 +165,12 @@ class PipelineCard(BaseModel):
     followup: str | None = None
 
 
-class Pipeline(BaseModel):
+class Pipeline(ApiModel):
     stages: list[StageInfo]
     cards: list[PipelineCard]
 
 
-class PipelineUpdate(BaseModel):
+class PipelineUpdate(ApiModel):
     """Only the fields you send are changed."""
     stage: Stage | None = None
     notes: str | None = Field(None, max_length=10000)
@@ -165,7 +178,7 @@ class PipelineUpdate(BaseModel):
     next_at: str | None = None  # local ISO datetime, empty to clear
 
 
-class PlannedStep(BaseModel):
+class PlannedStep(ApiModel):
     id: int
     title: str | None = None
     company: str | None = None
@@ -174,7 +187,7 @@ class PlannedStep(BaseModel):
     next_at: str
 
 
-class FollowupCandidate(BaseModel):
+class FollowupCandidate(ApiModel):
     id: int
     title: str | None = None
     company: str | None = None
@@ -183,32 +196,32 @@ class FollowupCandidate(BaseModel):
     sent: str | None = None
 
 
-class Reminders(BaseModel):
+class Reminders(ApiModel):
     upcoming: list[PlannedStep]
     past: list[PlannedStep]
     followups: list[FollowupCandidate]
 
 
-class FollowupSend(BaseModel):
+class FollowupSend(ApiModel):
     text: str = Field(min_length=1, max_length=4000)
 
 
-class FollowupClose(BaseModel):
+class FollowupClose(ApiModel):
     action: str = Field(pattern="^(done|dismissed)$")
 
 
-class Draft(BaseModel):
+class Draft(ApiModel):
     text: str
 
 
-class Started(BaseModel):
+class Started(ApiModel):
     ok: bool = True
     started: bool  # False: another task is running, it will be sent by the next one
 
 
 # ---------- companies ----------
-class Company(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+class Company(ApiModel):
+    model_config = ConfigDict(extra="ignore", json_schema_serialization_defaults_required=True)
 
     id: int
     name: str | None = None
@@ -220,13 +233,13 @@ class Company(BaseModel):
     sent_at: str | None = None
 
 
-class CompanyAdd(BaseModel):
+class CompanyAdd(ApiModel):
     name: str = Field("", max_length=300)
     email: str = Field(max_length=300)
     position: str = Field("", max_length=300)
 
 
-class CompanyUpdate(BaseModel):
+class CompanyUpdate(ApiModel):
     name: str = Field("", max_length=300)
     position: str = Field("", max_length=300)
 
@@ -235,45 +248,45 @@ class CompanyStatusChange(Ids):
     status: CompanyStatus
 
 
-class Added(BaseModel):
+class Added(ApiModel):
     ok: bool = True
     added: int
 
 
-class MailPreview(BaseModel):
+class MailPreview(ApiModel):
     to: str
     subject: str
     body: str
     attachments: list[str]
 
 
-class MailTest(BaseModel):
+class MailTest(ApiModel):
     ok: bool
     message: str
 
 
 # ---------- chats & answers ----------
-class ChatReply(BaseModel):
+class ChatReply(ApiModel):
     reply: str = Field(min_length=1, max_length=4000)
 
 
-class Answer(BaseModel):
+class Answer(ApiModel):
     id: int | None = None
     topic: str = Field("", max_length=200)
     keywords: str = Field("", max_length=1000)
     answer: str = Field("", max_length=4000)
 
 
-class AnswersSave(BaseModel):
+class AnswersSave(ApiModel):
     items: list[Answer]
 
 
-class AnswerMatch(BaseModel):
+class AnswerMatch(ApiModel):
     topic: str | None
     answer: str
 
 
-class Question(BaseModel):
+class Question(ApiModel):
     id: int
     text: str
     source: str | None = None
@@ -282,17 +295,17 @@ class Question(BaseModel):
 
 
 # ---------- jobs, status, stats ----------
-class TaskInfo(BaseModel):
+class TaskInfo(ApiModel):
     key: str
     title: str
 
 
-class LogLine(BaseModel):
+class LogLine(ApiModel):
     ts: str
     msg: str
 
 
-class Week(BaseModel):
+class Week(ApiModel):
     start: str
     invites: int
     applied: int
@@ -301,7 +314,7 @@ class Week(BaseModel):
     rate: float | None
 
 
-class Status(BaseModel):
+class Status(ApiModel):
     running: bool
     job: str | None
     log: list[LogLine]
@@ -318,37 +331,37 @@ class Status(BaseModel):
     autopilot_next: str | None
 
 
-class DayCount(BaseModel):
+class DayCount(ApiModel):
     day: str | None
     hh: int
     mail: int
 
 
-class StateCount(BaseModel):
+class StateCount(ApiModel):
     state: str
     n: int
 
 
-class ResumeCount(BaseModel):
+class ResumeCount(ApiModel):
     resume: str
     n: int
     invites: int | None
     discards: int | None
 
 
-class SkipReason(BaseModel):
+class SkipReason(ApiModel):
     note: str | None
     n: int
 
 
-class Stats(BaseModel):
+class Stats(ApiModel):
     by_day: list[DayCount]
     hh_states: list[StateCount]
     by_resume: list[ResumeCount]
     skipped: list[SkipReason]
 
 
-class SearchVacancy(BaseModel):
+class SearchVacancy(ApiModel):
     id: int
     source: str
     title: str | None
@@ -357,7 +370,7 @@ class SearchVacancy(BaseModel):
     created_at: str | None
 
 
-class SearchChat(BaseModel):
+class SearchChat(ApiModel):
     id: int
     chat_id: str | None
     company: str | None
@@ -367,7 +380,7 @@ class SearchChat(BaseModel):
     created_at: str | None
 
 
-class SearchCompany(BaseModel):
+class SearchCompany(ApiModel):
     id: int
     name: str | None
     email: str
@@ -375,12 +388,12 @@ class SearchCompany(BaseModel):
     status: CompanyStatus
 
 
-class SearchResult(BaseModel):
+class SearchResult(ApiModel):
     vacancies: list[SearchVacancy]
     chats: list[SearchChat]
     companies: list[SearchCompany]
 
 
-class ResumeUploaded(BaseModel):
+class ResumeUploaded(ApiModel):
     ok: bool = True
     name: str

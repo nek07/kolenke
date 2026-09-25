@@ -1,0 +1,5325 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "kolenke",
+    "version": "2.0.0"
+  },
+  "paths": {
+    "/api/settings": {
+      "get": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Get Settings",
+        "operationId": "get_settings",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Update Settings",
+        "operationId": "update_settings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings/resume": {
+      "post": {
+        "tags": [
+          "settings"
+        ],
+        "summary": "Upload Resume",
+        "operationId": "upload_resume",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_resume"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumeUploaded"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies": {
+      "get": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "List Vacancies",
+        "operationId": "list_vacancies",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/VacancySource"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/VacancyStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Vacancy"
+                  },
+                  "title": "Response List Vacancies"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Add Vacancy",
+        "operationId": "add_vacancy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VacancyAdd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/review": {
+      "get": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Review Queue",
+        "description": "New hh vacancies waiting for «Откликнуться» / «Пропустить».",
+        "operationId": "review_queue",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Vacancy"
+                  },
+                  "type": "array",
+                  "title": "Response Review Queue"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/status": {
+      "patch": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Change Vacancy Status",
+        "operationId": "change_vacancy_status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusChange"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/queue-new": {
+      "post": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Queue All New",
+        "operationId": "queue_all_new",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueueNew"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Count"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/delete": {
+      "post": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Delete Vacancies",
+        "operationId": "delete_vacancies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ids"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/to-companies": {
+      "post": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "To Companies",
+        "description": "E-mails from vacancies on other sites go to «Письма компаниям».",
+        "operationId": "to_companies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ids"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToCompaniesResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/{vid}": {
+      "get": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Vacancy Detail",
+        "operationId": "vacancy_detail",
+        "parameters": [
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VacancyDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/{vid}/pipeline": {
+      "patch": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Update Pipeline",
+        "operationId": "update_pipeline",
+        "parameters": [
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PipelineUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VacancyDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/{vid}/followup-draft": {
+      "get": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Followup Draft",
+        "operationId": "followup_draft",
+        "parameters": [
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Draft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/{vid}/followup": {
+      "post": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Send Followup",
+        "operationId": "send_followup",
+        "parameters": [
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowupSend"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Started"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vacancies/{vid}/followup/close": {
+      "post": {
+        "tags": [
+          "vacancies"
+        ],
+        "summary": "Close Followup",
+        "operationId": "close_followup",
+        "parameters": [
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Vid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowupClose"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pipeline": {
+      "get": {
+        "tags": [
+          "pipeline"
+        ],
+        "summary": "Get Pipeline",
+        "operationId": "get_pipeline",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pipeline"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reminders": {
+      "get": {
+        "tags": [
+          "pipeline"
+        ],
+        "summary": "Get Reminders",
+        "operationId": "get_reminders",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Reminders"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies": {
+      "get": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "List Companies",
+        "operationId": "list_companies",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CompanyStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Company"
+                  },
+                  "title": "Response List Companies"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Add Company",
+        "operationId": "add_company",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyAdd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/import": {
+      "post": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Import Companies",
+        "operationId": "import_companies",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_companies"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Added"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/status": {
+      "patch": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Change Company Status",
+        "operationId": "change_company_status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyStatusChange"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/delete": {
+      "post": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Delete Companies",
+        "operationId": "delete_companies",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ids"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/{cid}": {
+      "patch": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Update Company",
+        "operationId": "update_company",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/companies/{cid}/preview": {
+      "get": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Mail Preview",
+        "operationId": "mail_preview",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mail/test": {
+      "post": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Mail Test",
+        "operationId": "mail_test",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailTest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "List Chats",
+        "operationId": "list_chats",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ChatStatus",
+              "default": "pending"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatItem"
+                  },
+                  "title": "Response List Chats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/history": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Chats History",
+        "operationId": "chats_history",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ChatItem"
+                  },
+                  "type": "array",
+                  "title": "Response Chats History"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{cid}/reply": {
+      "post": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Reply Chat",
+        "operationId": "reply_chat",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatReply"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Started"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chats/{cid}/hide": {
+      "post": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Hide Chat",
+        "operationId": "hide_chat",
+        "parameters": [
+          {
+            "name": "cid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Cid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/answers": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "List Answers",
+        "operationId": "list_answers",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Answer-Output"
+                  },
+                  "type": "array",
+                  "title": "Response List Answers"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Save Answers",
+        "operationId": "save_answers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswersSave"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/answers/{aid}": {
+      "delete": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Delete Answer",
+        "operationId": "delete_answer",
+        "parameters": [
+          {
+            "name": "aid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Aid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/answers/match": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Match Answer",
+        "description": "Which answer the bot would give to this question.",
+        "operationId": "match_answer",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerMatch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/questions": {
+      "get": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "List Questions",
+        "operationId": "list_questions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Question"
+                  },
+                  "type": "array",
+                  "title": "Response List Questions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/questions/{qid}": {
+      "delete": {
+        "tags": [
+          "chats"
+        ],
+        "summary": "Delete Question",
+        "operationId": "delete_question",
+        "parameters": [
+          {
+            "name": "qid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Qid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "List Tasks",
+        "operationId": "list_tasks",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskInfo"
+                  },
+                  "type": "array",
+                  "title": "Response List Tasks"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/stop": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Stop Task",
+        "operationId": "stop_task",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jobs/{key}": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Start Task",
+        "operationId": "start_task",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Get Status",
+        "operationId": "get_status",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Get Stats",
+        "operationId": "get_stats",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Global Search",
+        "operationId": "global_search",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/{what}": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Export Csv",
+        "operationId": "export_csv",
+        "parameters": [
+          {
+            "name": "what",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "What"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV for Excel (semicolons, UTF-8 BOM)",
+            "content": {
+              "text/csv": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Added": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          },
+          "added": {
+            "type": "integer",
+            "title": "Added"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "added"
+        ],
+        "title": "Added"
+      },
+      "Answer-Input": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Topic",
+            "default": ""
+          },
+          "keywords": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Keywords",
+            "default": ""
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Answer",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "Answer"
+      },
+      "Answer-Output": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Topic",
+            "default": ""
+          },
+          "keywords": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Keywords",
+            "default": ""
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Answer",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "topic",
+          "keywords",
+          "answer"
+        ],
+        "title": "Answer"
+      },
+      "AnswerMatch": {
+        "properties": {
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic",
+          "answer"
+        ],
+        "title": "AnswerMatch"
+      },
+      "AnswersSave": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Answer-Input"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "AnswersSave"
+      },
+      "AutopilotMode": {
+        "type": "string",
+        "enum": [
+          "review",
+          "auto"
+        ],
+        "title": "AutopilotMode"
+      },
+      "Body_import_companies": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_companies"
+      },
+      "Body_upload_resume": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_resume"
+      },
+      "ChatItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          },
+          "msg_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Msg Id"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "vacancy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "reply": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reply"
+          },
+          "robot": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Robot"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChatStatus"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "chat_id",
+          "msg_id",
+          "company",
+          "vacancy",
+          "message",
+          "reply",
+          "robot",
+          "status",
+          "created_at",
+          "sent_at"
+        ],
+        "title": "ChatItem"
+      },
+      "ChatReply": {
+        "properties": {
+          "reply": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Reply"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reply"
+        ],
+        "title": "ChatReply"
+      },
+      "ChatStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "info",
+          "approved",
+          "sent",
+          "auto_sent",
+          "closed",
+          "hidden"
+        ],
+        "title": "ChatStatus"
+      },
+      "Company": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CompanyStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "position",
+          "status",
+          "note",
+          "created_at",
+          "sent_at"
+        ],
+        "title": "Company"
+      },
+      "CompanyAdd": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Name",
+            "default": ""
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Email"
+          },
+          "position": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Position",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "CompanyAdd"
+      },
+      "CompanyStatus": {
+        "type": "string",
+        "enum": [
+          "new",
+          "queued",
+          "sent",
+          "error"
+        ],
+        "title": "CompanyStatus"
+      },
+      "CompanyStatusChange": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "title": "Ids"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CompanyStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ids",
+          "status"
+        ],
+        "title": "CompanyStatusChange"
+      },
+      "CompanyUpdate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Name",
+            "default": ""
+          },
+          "position": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Position",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "CompanyUpdate"
+      },
+      "Contacts": {
+        "properties": {
+          "emails": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Emails",
+            "default": []
+          },
+          "phones": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Phones",
+            "default": []
+          },
+          "telegram": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Telegram",
+            "default": []
+          },
+          "person": {
+            "type": "string",
+            "title": "Person",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "emails",
+          "phones",
+          "telegram",
+          "person"
+        ],
+        "title": "Contacts"
+      },
+      "Count": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count"
+        ],
+        "title": "Count"
+      },
+      "DayCount": {
+        "properties": {
+          "day": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day"
+          },
+          "hh": {
+            "type": "integer",
+            "title": "Hh"
+          },
+          "mail": {
+            "type": "integer",
+            "title": "Mail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "hh",
+          "mail"
+        ],
+        "title": "DayCount"
+      },
+      "Draft": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "Draft"
+      },
+      "Experience": {
+        "type": "string",
+        "enum": [
+          "noExperience",
+          "between1And3",
+          "between3And6",
+          "moreThan6"
+        ],
+        "title": "Experience"
+      },
+      "FollowupCandidate": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "company",
+          "url",
+          "stage",
+          "sent"
+        ],
+        "title": "FollowupCandidate"
+      },
+      "FollowupClose": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "pattern": "^(done|dismissed)$",
+            "title": "Action"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "FollowupClose"
+      },
+      "FollowupSend": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "FollowupSend"
+      },
+      "FormAnswer": {
+        "properties": {
+          "q": {
+            "type": "string",
+            "title": "Q"
+          },
+          "a": {
+            "type": "string",
+            "title": "A"
+          }
+        },
+        "type": "object",
+        "required": [
+          "q",
+          "a"
+        ],
+        "title": "FormAnswer"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HhMode": {
+        "type": "string",
+        "enum": [
+          "resume",
+          "query"
+        ],
+        "title": "HhMode"
+      },
+      "HhResume": {
+        "properties": {
+          "hash": {
+            "type": "string",
+            "title": "Hash"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hash",
+          "title"
+        ],
+        "title": "HhResume"
+      },
+      "Ids": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "title": "Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "title": "Ids"
+      },
+      "LogLine": {
+        "properties": {
+          "ts": {
+            "type": "string",
+            "title": "Ts"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Msg"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ts",
+          "msg"
+        ],
+        "title": "LogLine"
+      },
+      "MailPreview": {
+        "properties": {
+          "to": {
+            "type": "string",
+            "title": "To"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "attachments": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Attachments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "to",
+          "subject",
+          "body",
+          "attachments"
+        ],
+        "title": "MailPreview"
+      },
+      "MailTest": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "message"
+        ],
+        "title": "MailTest"
+      },
+      "Ok": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok"
+        ],
+        "title": "Ok"
+      },
+      "Pipeline": {
+        "properties": {
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageInfo"
+            },
+            "type": "array",
+            "title": "Stages"
+          },
+          "cards": {
+            "items": {
+              "$ref": "#/components/schemas/PipelineCard"
+            },
+            "type": "array",
+            "title": "Cards"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stages",
+          "cards"
+        ],
+        "title": "Pipeline"
+      },
+      "PipelineCard": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stage_manual": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Manual"
+          },
+          "stage_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage At"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Step"
+          },
+          "next_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next At"
+          },
+          "hh_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh State"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "followup": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "url",
+          "title",
+          "company",
+          "stage",
+          "stage_manual",
+          "stage_at",
+          "notes",
+          "next_step",
+          "next_at",
+          "hh_state",
+          "applied_at",
+          "created_at",
+          "followup"
+        ],
+        "title": "PipelineCard"
+      },
+      "PipelineUpdate": {
+        "properties": {
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 10000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Step"
+          },
+          "next_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next At"
+          }
+        },
+        "type": "object",
+        "title": "PipelineUpdate",
+        "description": "Only the fields you send are changed."
+      },
+      "PlannedStep": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Step"
+          },
+          "next_at": {
+            "type": "string",
+            "title": "Next At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "company",
+          "stage",
+          "next_step",
+          "next_at"
+        ],
+        "title": "PlannedStep"
+      },
+      "Question": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "seen": {
+            "type": "integer",
+            "title": "Seen"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "source",
+          "seen",
+          "created_at"
+        ],
+        "title": "Question"
+      },
+      "QueueNew": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "hh"
+          }
+        },
+        "type": "object",
+        "title": "QueueNew"
+      },
+      "Reason": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "text"
+        ],
+        "title": "Reason"
+      },
+      "Reminders": {
+        "properties": {
+          "upcoming": {
+            "items": {
+              "$ref": "#/components/schemas/PlannedStep"
+            },
+            "type": "array",
+            "title": "Upcoming"
+          },
+          "past": {
+            "items": {
+              "$ref": "#/components/schemas/PlannedStep"
+            },
+            "type": "array",
+            "title": "Past"
+          },
+          "followups": {
+            "items": {
+              "$ref": "#/components/schemas/FollowupCandidate"
+            },
+            "type": "array",
+            "title": "Followups"
+          }
+        },
+        "type": "object",
+        "required": [
+          "upcoming",
+          "past",
+          "followups"
+        ],
+        "title": "Reminders"
+      },
+      "ResumeCount": {
+        "properties": {
+          "resume": {
+            "type": "string",
+            "title": "Resume"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "invites": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invites"
+          },
+          "discards": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discards"
+          }
+        },
+        "type": "object",
+        "required": [
+          "resume",
+          "n",
+          "invites",
+          "discards"
+        ],
+        "title": "ResumeCount"
+      },
+      "ResumeUploaded": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "name"
+        ],
+        "title": "ResumeUploaded"
+      },
+      "SearchChat": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "chat_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Id"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "vacancy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChatStatus"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "chat_id",
+          "company",
+          "vacancy",
+          "message",
+          "status",
+          "created_at"
+        ],
+        "title": "SearchChat"
+      },
+      "SearchCompany": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Position"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CompanyStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "position",
+          "status"
+        ],
+        "title": "SearchCompany"
+      },
+      "SearchResult": {
+        "properties": {
+          "vacancies": {
+            "items": {
+              "$ref": "#/components/schemas/SearchVacancy"
+            },
+            "type": "array",
+            "title": "Vacancies"
+          },
+          "chats": {
+            "items": {
+              "$ref": "#/components/schemas/SearchChat"
+            },
+            "type": "array",
+            "title": "Chats"
+          },
+          "companies": {
+            "items": {
+              "$ref": "#/components/schemas/SearchCompany"
+            },
+            "type": "array",
+            "title": "Companies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vacancies",
+          "chats",
+          "companies"
+        ],
+        "title": "SearchResult"
+      },
+      "SearchVacancy": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VacancyStatus"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "title",
+          "company",
+          "status",
+          "created_at"
+        ],
+        "title": "SearchVacancy"
+      },
+      "SettingsOut": {
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "title": "Full Name",
+            "default": ""
+          },
+          "phone": {
+            "type": "string",
+            "title": "Phone",
+            "default": ""
+          },
+          "desired_position": {
+            "type": "string",
+            "title": "Desired Position",
+            "default": ""
+          },
+          "resume_file": {
+            "type": "string",
+            "title": "Resume File",
+            "default": ""
+          },
+          "hh_domain": {
+            "type": "string",
+            "pattern": "^(hh\\.(kz|ru|uz)|rabota\\.by)$",
+            "title": "Hh Domain",
+            "default": "hh.kz"
+          },
+          "hh_mode": {
+            "$ref": "#/components/schemas/HhMode",
+            "default": "resume"
+          },
+          "hh_resume_hash": {
+            "type": "string",
+            "title": "Hh Resume Hash",
+            "default": ""
+          },
+          "hh_resumes": {
+            "items": {
+              "$ref": "#/components/schemas/HhResume"
+            },
+            "type": "array",
+            "title": "Hh Resumes",
+            "default": []
+          },
+          "hh_query": {
+            "type": "string",
+            "title": "Hh Query",
+            "default": ""
+          },
+          "hh_area": {
+            "type": "string",
+            "pattern": "^\\d*$",
+            "title": "Hh Area",
+            "default": ""
+          },
+          "hh_pages": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Hh Pages",
+            "default": 3
+          },
+          "hh_daily_limit": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Hh Daily Limit",
+            "default": 50
+          },
+          "hh_weekly_goal": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Hh Weekly Goal",
+            "default": 150
+          },
+          "hh_pause_min": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Hh Pause Min",
+            "default": 4
+          },
+          "hh_pause_max": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Hh Pause Max",
+            "default": 9
+          },
+          "hh_exclude": {
+            "type": "string",
+            "title": "Hh Exclude",
+            "default": ""
+          },
+          "hh_letter_template": {
+            "type": "string",
+            "title": "Hh Letter Template",
+            "default": "Здравствуйте!\n\nМеня заинтересовала вакансия «{position}» в компании {company}. Буду рад(а) обсудить, чем могу быть полезен(на) вашей команде.\n\nС уважением,\n{name}\n{phone}"
+          },
+          "f_salary_min": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Salary Min"
+          },
+          "f_skip_no_salary": {
+            "type": "boolean",
+            "title": "F Skip No Salary",
+            "default": false
+          },
+          "f_experience": {
+            "items": {
+              "$ref": "#/components/schemas/Experience"
+            },
+            "type": "array",
+            "title": "F Experience",
+            "default": []
+          },
+          "f_exclude_companies": {
+            "type": "string",
+            "title": "F Exclude Companies",
+            "default": ""
+          },
+          "f_skip_rejected": {
+            "type": "boolean",
+            "title": "F Skip Rejected",
+            "default": true
+          },
+          "f_min_match": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "F Min Match",
+            "default": 0
+          },
+          "f_sort_match": {
+            "type": "boolean",
+            "title": "F Sort Match",
+            "default": true
+          },
+          "chat_auto": {
+            "type": "boolean",
+            "title": "Chat Auto",
+            "default": true
+          },
+          "chat_max": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Chat Max",
+            "default": 20
+          },
+          "chat_robot_steps": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Chat Robot Steps",
+            "default": 10
+          },
+          "smtp_host": {
+            "type": "string",
+            "title": "Smtp Host",
+            "default": "smtp.gmail.com"
+          },
+          "smtp_port": {
+            "type": "integer",
+            "maximum": 65535.0,
+            "minimum": 1.0,
+            "title": "Smtp Port",
+            "default": 465
+          },
+          "smtp_user": {
+            "type": "string",
+            "title": "Smtp User",
+            "default": ""
+          },
+          "mail_daily_limit": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Mail Daily Limit",
+            "default": 80
+          },
+          "mail_delay_min": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mail Delay Min",
+            "default": 40
+          },
+          "mail_delay_max": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Mail Delay Max",
+            "default": 90
+          },
+          "mail_subject_template": {
+            "type": "string",
+            "title": "Mail Subject Template",
+            "default": "Резюме: {name} — {position}"
+          },
+          "mail_body_template": {
+            "type": "string",
+            "title": "Mail Body Template",
+            "default": "Здравствуйте!\n\nМеня зовут {name}. Хотел(а) бы предложить свою кандидатуру на позицию «{position}» в {company}. Резюме во вложении.\n\nБуду благодарен(на) за обратную связь.\n\nС уважением,\n{name}\n{phone}"
+          },
+          "autopilot_on": {
+            "type": "boolean",
+            "title": "Autopilot On",
+            "default": false
+          },
+          "autopilot_mode": {
+            "$ref": "#/components/schemas/AutopilotMode",
+            "default": "review"
+          },
+          "autopilot_interval": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Autopilot Interval",
+            "default": 30
+          },
+          "autopilot_from": {
+            "type": "integer",
+            "maximum": 23.0,
+            "minimum": 0.0,
+            "title": "Autopilot From",
+            "default": 8
+          },
+          "autopilot_to": {
+            "type": "integer",
+            "maximum": 24.0,
+            "minimum": 1.0,
+            "title": "Autopilot To",
+            "default": 22
+          },
+          "other_query": {
+            "type": "string",
+            "title": "Other Query",
+            "default": ""
+          },
+          "other_sites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Other Sites",
+            "default": [
+              "habr",
+              "enbek"
+            ]
+          },
+          "other_pages": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Other Pages",
+            "default": 2
+          },
+          "other_countries": {
+            "type": "string",
+            "title": "Other Countries",
+            "default": ""
+          },
+          "other_monitor": {
+            "type": "boolean",
+            "title": "Other Monitor",
+            "default": true
+          },
+          "other_max_details": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Other Max Details",
+            "default": 40
+          },
+          "followup_days": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Followup Days",
+            "default": 5
+          },
+          "followup_template": {
+            "type": "string",
+            "title": "Followup Template",
+            "default": "Здравствуйте! Несколько дней назад я откликнулся(ась) на вакансию «{position}». Подскажите, пожалуйста, актуальна ли она и удобно ли обсудить мою кандидатуру? Буду рад(а) ответить на любые вопросы.\n\nС уважением,\n{name}"
+          },
+          "has_password": {
+            "type": "boolean",
+            "title": "Has Password",
+            "default": false
+          },
+          "resume_name": {
+            "type": "string",
+            "title": "Resume Name",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "phone",
+          "desired_position",
+          "resume_file",
+          "hh_domain",
+          "hh_mode",
+          "hh_resume_hash",
+          "hh_resumes",
+          "hh_query",
+          "hh_area",
+          "hh_pages",
+          "hh_daily_limit",
+          "hh_weekly_goal",
+          "hh_pause_min",
+          "hh_pause_max",
+          "hh_exclude",
+          "hh_letter_template",
+          "f_salary_min",
+          "f_skip_no_salary",
+          "f_experience",
+          "f_exclude_companies",
+          "f_skip_rejected",
+          "f_min_match",
+          "f_sort_match",
+          "chat_auto",
+          "chat_max",
+          "chat_robot_steps",
+          "smtp_host",
+          "smtp_port",
+          "smtp_user",
+          "mail_daily_limit",
+          "mail_delay_min",
+          "mail_delay_max",
+          "mail_subject_template",
+          "mail_body_template",
+          "autopilot_on",
+          "autopilot_mode",
+          "autopilot_interval",
+          "autopilot_from",
+          "autopilot_to",
+          "other_query",
+          "other_sites",
+          "other_pages",
+          "other_countries",
+          "other_monitor",
+          "other_max_details",
+          "followup_days",
+          "followup_template",
+          "has_password",
+          "resume_name"
+        ],
+        "title": "SettingsOut",
+        "description": "What the page sees: the password itself never leaves the server."
+      },
+      "SettingsUpdate": {
+        "properties": {
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "desired_position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Position"
+          },
+          "hh_domain": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(hh\\.(kz|ru|uz)|rabota\\.by)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Domain"
+          },
+          "hh_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HhMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hh_resume_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Resume Hash"
+          },
+          "hh_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Query"
+          },
+          "hh_area": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Area"
+          },
+          "hh_pages": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Pages"
+          },
+          "hh_daily_limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Daily Limit"
+          },
+          "hh_weekly_goal": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Weekly Goal"
+          },
+          "hh_pause_min": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Pause Min"
+          },
+          "hh_pause_max": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Pause Max"
+          },
+          "hh_exclude": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Exclude"
+          },
+          "hh_letter_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh Letter Template"
+          },
+          "f_salary_min": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Salary Min"
+          },
+          "f_skip_no_salary": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Skip No Salary"
+          },
+          "f_experience": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Experience"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Experience"
+          },
+          "f_exclude_companies": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Exclude Companies"
+          },
+          "f_skip_rejected": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Skip Rejected"
+          },
+          "f_min_match": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Min Match"
+          },
+          "f_sort_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "F Sort Match"
+          },
+          "chat_auto": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Auto"
+          },
+          "chat_max": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Max"
+          },
+          "chat_robot_steps": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chat Robot Steps"
+          },
+          "smtp_host": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Smtp Host"
+          },
+          "smtp_port": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 65535.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Smtp Port"
+          },
+          "smtp_user": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Smtp User"
+          },
+          "smtp_password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Smtp Password"
+          },
+          "mail_daily_limit": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail Daily Limit"
+          },
+          "mail_delay_min": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail Delay Min"
+          },
+          "mail_delay_max": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail Delay Max"
+          },
+          "mail_subject_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail Subject Template"
+          },
+          "mail_body_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mail Body Template"
+          },
+          "autopilot_on": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autopilot On"
+          },
+          "autopilot_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutopilotMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "autopilot_interval": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autopilot Interval"
+          },
+          "autopilot_from": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 23.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autopilot From"
+          },
+          "autopilot_to": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 24.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autopilot To"
+          },
+          "other_query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Query"
+          },
+          "other_sites": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Sites"
+          },
+          "other_pages": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Pages"
+          },
+          "other_countries": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Countries"
+          },
+          "other_monitor": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Monitor"
+          },
+          "other_max_details": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Other Max Details"
+          },
+          "followup_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Days"
+          },
+          "followup_template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Template"
+          }
+        },
+        "type": "object",
+        "title": "SettingsUpdate"
+      },
+      "SkipReason": {
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          }
+        },
+        "type": "object",
+        "required": [
+          "note",
+          "n"
+        ],
+        "title": "SkipReason"
+      },
+      "Stage": {
+        "type": "string",
+        "enum": [
+          "applied",
+          "viewed",
+          "invited",
+          "interview",
+          "offer",
+          "declined"
+        ],
+        "title": "Stage",
+        "description": "Pipeline after the response."
+      },
+      "StageInfo": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Stage"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "title": "StageInfo"
+      },
+      "Started": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          },
+          "started": {
+            "type": "boolean",
+            "title": "Started"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "started"
+        ],
+        "title": "Started"
+      },
+      "StateCount": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "n": {
+            "type": "integer",
+            "title": "N"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "n"
+        ],
+        "title": "StateCount"
+      },
+      "Stats": {
+        "properties": {
+          "by_day": {
+            "items": {
+              "$ref": "#/components/schemas/DayCount"
+            },
+            "type": "array",
+            "title": "By Day"
+          },
+          "hh_states": {
+            "items": {
+              "$ref": "#/components/schemas/StateCount"
+            },
+            "type": "array",
+            "title": "Hh States"
+          },
+          "by_resume": {
+            "items": {
+              "$ref": "#/components/schemas/ResumeCount"
+            },
+            "type": "array",
+            "title": "By Resume"
+          },
+          "skipped": {
+            "items": {
+              "$ref": "#/components/schemas/SkipReason"
+            },
+            "type": "array",
+            "title": "Skipped"
+          }
+        },
+        "type": "object",
+        "required": [
+          "by_day",
+          "hh_states",
+          "by_resume",
+          "skipped"
+        ],
+        "title": "Stats"
+      },
+      "Status": {
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "job": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job"
+          },
+          "log": {
+            "items": {
+              "$ref": "#/components/schemas/LogLine"
+            },
+            "type": "array",
+            "title": "Log"
+          },
+          "vacancies": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Vacancies"
+          },
+          "companies": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Companies"
+          },
+          "applied_today": {
+            "type": "integer",
+            "title": "Applied Today"
+          },
+          "week": {
+            "$ref": "#/components/schemas/Week"
+          },
+          "review": {
+            "type": "integer",
+            "title": "Review"
+          },
+          "sent_today": {
+            "type": "integer",
+            "title": "Sent Today"
+          },
+          "chats_pending": {
+            "type": "integer",
+            "title": "Chats Pending"
+          },
+          "attention": {
+            "type": "integer",
+            "title": "Attention"
+          },
+          "reminders": {
+            "type": "integer",
+            "title": "Reminders"
+          },
+          "no_letter": {
+            "type": "integer",
+            "title": "No Letter"
+          },
+          "autopilot_next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Autopilot Next"
+          }
+        },
+        "type": "object",
+        "required": [
+          "running",
+          "job",
+          "log",
+          "vacancies",
+          "companies",
+          "applied_today",
+          "week",
+          "review",
+          "sent_today",
+          "chats_pending",
+          "attention",
+          "reminders",
+          "no_letter",
+          "autopilot_next"
+        ],
+        "title": "Status"
+      },
+      "StatusChange": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 5000,
+            "minItems": 1,
+            "title": "Ids"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VacancyStatus"
+          },
+          "review": {
+            "type": "boolean",
+            "title": "Review",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "ids",
+          "status"
+        ],
+        "title": "StatusChange"
+      },
+      "TaskInfo": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "title"
+        ],
+        "title": "TaskInfo"
+      },
+      "ToCompaniesResult": {
+        "properties": {
+          "added": {
+            "type": "integer",
+            "title": "Added"
+          },
+          "no_email": {
+            "type": "integer",
+            "title": "No Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "added",
+          "no_email"
+        ],
+        "title": "ToCompaniesResult"
+      },
+      "Vacancy": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "ext_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ext Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VacancyStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "resume": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resume"
+          },
+          "hh_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh State"
+          },
+          "hh_state_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh State At"
+          },
+          "letter_sent": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Letter Sent"
+          },
+          "salary_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Text"
+          },
+          "salary_from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary From"
+          },
+          "salary_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary To"
+          },
+          "experience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience"
+          },
+          "skill_match": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Match"
+          },
+          "invited_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invited At"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Step"
+          },
+          "next_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next At"
+          },
+          "followup": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "remote": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remote"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "company_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Url"
+          },
+          "skills": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skills"
+          },
+          "contacts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Contacts"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "ext_id",
+          "url",
+          "title",
+          "company",
+          "status",
+          "note",
+          "created_at",
+          "applied_at",
+          "resume",
+          "hh_state",
+          "hh_state_at",
+          "letter_sent",
+          "salary_text",
+          "salary_from",
+          "salary_to",
+          "experience",
+          "skill_match",
+          "invited_at",
+          "reviewed_at",
+          "stage",
+          "next_step",
+          "next_at",
+          "followup",
+          "location",
+          "country",
+          "remote",
+          "summary",
+          "company_url",
+          "skills",
+          "contacts"
+        ],
+        "title": "Vacancy"
+      },
+      "VacancyAdd": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "^https?://",
+            "title": "Url"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": ""
+          },
+          "company": {
+            "type": "string",
+            "title": "Company",
+            "default": ""
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "default": "other"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "VacancyAdd"
+      },
+      "VacancyDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "ext_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ext Id"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VacancyStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "resume": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resume"
+          },
+          "hh_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh State"
+          },
+          "hh_state_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hh State At"
+          },
+          "letter_sent": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Letter Sent"
+          },
+          "salary_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Text"
+          },
+          "salary_from": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary From"
+          },
+          "salary_to": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary To"
+          },
+          "experience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience"
+          },
+          "skill_match": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Match"
+          },
+          "invited_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invited At"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Step"
+          },
+          "next_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next At"
+          },
+          "followup": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "remote": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remote"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "company_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Company Url"
+          },
+          "skills": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skills"
+          },
+          "contacts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Contacts"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "letter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Letter"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "stage_manual": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage Manual"
+          },
+          "stage_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage At"
+          },
+          "followup_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followup Text"
+          },
+          "match_info": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Match Info",
+            "default": []
+          },
+          "form_answers": {
+            "items": {
+              "$ref": "#/components/schemas/FormAnswer"
+            },
+            "type": "array",
+            "title": "Form Answers",
+            "default": []
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/VacancyEvent"
+            },
+            "type": "array",
+            "title": "Events",
+            "default": []
+          },
+          "chats": {
+            "items": {
+              "$ref": "#/components/schemas/ChatItem"
+            },
+            "type": "array",
+            "title": "Chats",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "ext_id",
+          "url",
+          "title",
+          "company",
+          "status",
+          "note",
+          "created_at",
+          "applied_at",
+          "resume",
+          "hh_state",
+          "hh_state_at",
+          "letter_sent",
+          "salary_text",
+          "salary_from",
+          "salary_to",
+          "experience",
+          "skill_match",
+          "invited_at",
+          "reviewed_at",
+          "stage",
+          "next_step",
+          "next_at",
+          "followup",
+          "location",
+          "country",
+          "remote",
+          "summary",
+          "company_url",
+          "skills",
+          "contacts",
+          "letter",
+          "notes",
+          "stage_manual",
+          "stage_at",
+          "followup_text",
+          "match_info",
+          "form_answers",
+          "events",
+          "chats"
+        ],
+        "title": "VacancyDetail"
+      },
+      "VacancyEvent": {
+        "properties": {
+          "ts": {
+            "type": "string",
+            "title": "Ts"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ts",
+          "kind",
+          "text"
+        ],
+        "title": "VacancyEvent"
+      },
+      "VacancySource": {
+        "type": "string",
+        "enum": [
+          "hh",
+          "habr",
+          "enbek",
+          "other"
+        ],
+        "title": "VacancySource"
+      },
+      "VacancyStatus": {
+        "type": "string",
+        "enum": [
+          "new",
+          "queued",
+          "applied",
+          "skipped",
+          "attention",
+          "error"
+        ],
+        "title": "VacancyStatus"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Week": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "invites": {
+            "type": "integer",
+            "title": "Invites"
+          },
+          "applied": {
+            "type": "integer",
+            "title": "Applied"
+          },
+          "applied_all": {
+            "type": "integer",
+            "title": "Applied All"
+          },
+          "invites_all": {
+            "type": "integer",
+            "title": "Invites All"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "invites",
+          "applied",
+          "applied_all",
+          "invites_all",
+          "rate"
+        ],
+        "title": "Week"
+      }
+    }
+  }
+}

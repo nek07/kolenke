@@ -30,7 +30,7 @@ from kolenke.workers.runner import JobRunner
     (None, (None, None)),
     ("з/п по договорённости", (None, None)),
     ("от\xa0400\xa0000\xa0₸", (400000, None)),
-    ("от 400 000 ₸", (400000, None)),  # hh puts a narrow no-break space between thousands
+    ("от 400\u202f000 ₸", (400000, None)),  # hh puts a narrow no-break space between thousands
 ])
 def test_parse_salary(text, expected):
     assert filters.parse_salary(text) == expected
@@ -163,7 +163,7 @@ def test_needs_reply(text, robot, expected):
 
 
 def test_clean_text_drops_invisible_padding():
-    assert chats.clean_text("Добрый\xa0день​!\n\n\n\nЖдём") == "Добрый день !\n\nЖдём"
+    assert chats.clean_text("Добрый\xa0день\u200b!\n\n\n\nЖдём") == "Добрый день !\n\nЖдём"
 
 
 def test_notify_passes_text_as_data_not_code(notifications, monkeypatch):

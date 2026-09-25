@@ -1,5 +1,6 @@
 """Хабр Карьера и Enbek: contacts, place, currency, page readers on saved pages, filters, monitoring, «В письма компаниям»."""
 import json
+import re
 from contextlib import contextmanager
 
 import pytest
@@ -62,15 +63,23 @@ def test_registry_boards_follow_the_protocol():
 # ---------- page readers on saved real pages ----------
 @pytest.fixture(scope="module")
 def browser_page():
+    """The saved pages reference the sites' scripts and images: block the network so the tests are offline and fast."""
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
         b = p.chromium.launch()
-        yield b.new_page()
+        page = b.new_page()
+        page.route(re.compile(r"^https?://"), lambda route: route.abort())
+        yield page
         b.close()
 
 
+def load(page, name):
+    """Only the DOM is needed: don't wait for images and frames of the saved page."""
+    page.set_content((FIXTURES / name).read_text(), wait_until="domcontentloaded")
+
+
 def test_habr_list_page(browser_page):
-    browser_page.set_content((FIXTURES / "habr_list.html").read_text())
+    load(browser_page, "habr_list.html")
     items = [habr.normalize(r) for r in browser_page.evaluate(habr.LIST_JS)]
     assert len(items) >= 5
     assert all(v["ext_id"] and v["url"].startswith("https://career.habr.com/vacancies/") for v in items)
@@ -80,12 +89,12 @@ def test_habr_list_page(browser_page):
 
 
 def test_habr_vacancy_page(browser_page):
-    browser_page.set_content((FIXTURES / "habr_vacancy.html").read_text())
+    load(browser_page, "habr_vacancy.html")
     assert len(browser_page.evaluate(habr.DETAIL_JS)["text"]) > 100
 
 
 def test_enbek_list_page(browser_page):
-    browser_page.set_content((FIXTURES / "enbek_list.html").read_text())
+    load(browser_page, "enbek_list.html")
     items = [enbek.normalize(r) for r in browser_page.evaluate(enbek.LIST_JS)]
     assert items and all(v["country"] == "Казахстан" and v["ext_id"] for v in items)
     first = items[0]
@@ -94,7 +103,7 @@ def test_enbek_list_page(browser_page):
 
 
 def test_enbek_vacancy_page(browser_page):
-    browser_page.set_content((FIXTURES / "enbek_vacancy.html").read_text())
+    load(browser_page, "enbek_vacancy.html")
     d = browser_page.evaluate(enbek.DETAIL_JS)
     assert d["emails"] and d["person"] and len(d["phones_raw"]) >= 10
     assert "000" in d["salary"]

@@ -20,12 +20,15 @@ NonNegative = Annotated[int, Ge(0)]
 
 
 class HhResume(BaseModel):
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
+
     hash: str
     title: str
 
 
 class SettingsFields(BaseModel):
     """Every setting with its default. Shared by the stored model, the page's view and the partial update."""
+    model_config = ConfigDict(json_schema_serialization_defaults_required=True)
 
     # profile
     full_name: str = ""
