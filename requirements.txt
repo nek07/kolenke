@@ -1,5 +1,0 @@
-fastapi
-uvicorn
-playwright
-python-multipart
-openpyxl
