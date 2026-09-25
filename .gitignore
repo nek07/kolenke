@@ -6,3 +6,6 @@ __pycache__/
 .DS_Store
 *.log
 data-backup-*/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/

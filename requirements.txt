@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-playwright
-python-multipart
-openpyxl
-websockets
-httpx
