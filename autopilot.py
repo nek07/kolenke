@@ -68,7 +68,7 @@ def _loop():
                 state["next_run"] = None
                 continue
             now = datetime.now()
-            if not int(s["autopilot_from"] or 0) <= now.hour < int(s["autopilot_to"] or 24):
+            if not db.num(s, "autopilot_from", 0, 23) <= now.hour < db.num(s, "autopilot_to", 1, 24):
                 continue
             if state["next_run"] and now < state["next_run"]:
                 continue
@@ -77,7 +77,7 @@ def _loop():
             if job.start("Автопилот", cycle):
                 db.log("▶ Автопилот")
                 state["last_run"] = now
-                state["next_run"] = now + timedelta(minutes=max(10, int(s["autopilot_interval"] or 30)))
+                state["next_run"] = now + timedelta(minutes=db.num(s, "autopilot_interval"))
         except Exception as e:
             db.log(f"Автопилот: ошибка планировщика {e}")
 

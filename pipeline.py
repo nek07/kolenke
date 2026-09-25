@@ -69,7 +69,7 @@ def update(vid, data: dict):
 
 def followup_candidates():
     """Responses with no reaction for N days: a good moment to remind about yourself."""
-    days = int(db.get_settings()["followup_days"] or 5)
+    days = db.num(db.get_settings(), "followup_days")
     since = (datetime.now() - timedelta(days=days)).isoformat(timespec="seconds")
     return db.q(
         "SELECT id, title, company, url, stage, COALESCE(applied_at, created_at) sent FROM vacancies "

@@ -212,3 +212,27 @@ def test_other_sites_settings_are_reflected(page, server):
     page.click("#osrcpick .chip[data-v='habr']")
     page.wait_for_timeout(500)
     assert db.get_settings()["other_sites"] == "enbek,habr"
+
+
+def test_each_setting_has_one_input():
+    """Two inputs for one setting overwrite each other on save — every data-s must appear once."""
+    keys = re.findall(r'data-s="([a-z_]+)"', HTML)
+    dupes = sorted({k for k in keys if keys.count(k) > 1})
+    assert not dupes, dupes
+
+
+def test_limits_card_saves_user_values(page, server):
+    page.goto(server)
+    page.click('nav button[data-t="hh"]')
+    page.click("#apacc summary")
+    page.click("#apacc a:has-text('Лимиты и паузы')")
+    page.wait_for_selector("#limitscard", state="visible")
+    for key, value in {"hh_daily_limit": "120", "hh_pause_min": "15", "hh_pause_max": "40", "autopilot_interval": "5",
+                       "chat_max": "3", "other_max_details": "0", "followup_days": "10"}.items():
+        page.fill(f'#limitscard [data-s="{key}"]', value)
+    page.click("#limitscard button:has-text('Сохранить')")
+    page.wait_for_timeout(500)
+    s = db.get_settings()
+    assert (s["hh_daily_limit"], s["hh_pause_min"], s["hh_pause_max"], s["autopilot_interval"], s["chat_max"],
+            s["other_max_details"], s["followup_days"]) == ("120", "15", "40", "5", "3", "0", "10")
+    assert not page.errors

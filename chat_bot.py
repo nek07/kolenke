@@ -1,4 +1,5 @@
 """hh chats: answer HR robots from the answer base, pass everything else to the user with a draft reply."""
+import re
 import subprocess
 
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
@@ -8,12 +9,18 @@ import db
 from hh_bot import _open, _wait_captcha, is_logged_in
 from jobs import job
 
-MAX_CHATS = 20
-MAX_ROBOT_STEPS = 10  # questions in a row answered in one chat
 AUTO_NOTICES = (
     "рассмотрит ваше резюме", "рассмотрит резюме", "ответы отправлены", "к сожалению", "благодарим вас за отклик",
     "благодарим за отклик", "не прошла проверку", "была удалена", "вакансия закрыта", "перенесена в архив",
 )
+MSG_SEP = "\n\n———\n\n"  # between messages stored in one chat item; the UI splits on it into separate bubbles
+
+
+def clean_text(text):
+    """hh message bodies come with nbsp/zero-width padding and runs of empty paragraphs: keep at most one blank line."""
+    text = re.sub(r"[ ​⁠﻿]", " ", text or "")
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
 def notify(text):
@@ -133,7 +140,7 @@ def _send(page, text) -> bool:
 def _handle_chat(page, domain, chat_id, auto):
     page.goto(f"https://{domain}/chat/{chat_id}", wait_until="domcontentloaded")
     new_items = 0
-    for _ in range(MAX_ROBOT_STEPS):
+    for _ in range(db.num(db.get_settings(), "chat_robot_steps")):  # questions in a row answered in one chat
         chat = _read_chat(page)
         if not chat:
             return new_items
@@ -144,7 +151,7 @@ def _handle_chat(page, domain, chat_id, auto):
         if db.q("SELECT 1 FROM chat_items WHERE msg_id=?", (last["id"],)):
             return new_items  # already handled / waiting for the user
         robot = _robot_active(chat["messages"])
-        message = "\n\n".join(m["text"] for m in incoming[-3:])
+        message = MSG_SEP.join(clean_text(m["text"]) for m in incoming[-3:])
         topic, answer = answers.match(last["text"])
         base = (chat_id, last["id"], chat["company"], chat["vacancy"], message, int(robot))
 
@@ -213,7 +220,7 @@ def run():
         chats = _unread_chats(page, domain)
         db.log(f"Чаты: непрочитанных {len(chats)}")
         waiting = 0
-        for c in chats[:MAX_CHATS]:
+        for c in chats[:db.num(s, "chat_max")]:
             if job.stop_requested:
                 break
             try:

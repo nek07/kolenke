@@ -167,3 +167,18 @@ def test_unknown_job_and_busy_job(client, monkeypatch):
     assert client.post("/api/jobs/hh_sync").status_code == 409
     gate.set()
     time.sleep(0.1)
+
+
+# ---------- search ----------
+def test_search_finds_company_everywhere_ignoring_case(client):
+    add_vacancy(ext_id="7", title="PHP программист", company="ТОО Плаза Лубрикантс")
+    add_vacancy(ext_id="8", title="Python", company="Другая")
+    db.x("INSERT INTO chat_items(chat_id, msg_id, company, vacancy, message, status) VALUES "
+         "('c1', 'm1', 'Плаза Лубрикантс', '', 'старое', 'info'), ('c1', 'm2', 'Плаза Лубрикантс', '', 'новое', 'pending')")
+    db.x("INSERT INTO companies(name, email) VALUES ('Плаза', 'hr@plaza.kz')")
+    r = client.get("/api/search", params={"q": "плаза лубр"}).json()
+    assert [v["title"] for v in r["vacancies"]] == ["PHP программист"]
+    assert [c["message"] for c in r["chats"]] == ["новое"]  # one row per chat, the latest
+    assert r["companies"] == []  # «лубр» is not in the company's mail row
+    assert client.get("/api/search", params={"q": "PLAZA.KZ"}).json()["companies"][0]["email"] == "hr@plaza.kz"
+    assert client.get("/api/search", params={"q": "  "}).json() == {"vacancies": [], "chats": [], "companies": []}

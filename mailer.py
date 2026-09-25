@@ -49,8 +49,9 @@ def send_queue():
     if not s["resume_file"] or not Path(s["resume_file"]).exists():
         db.log("Почта: сначала загрузите файл резюме")
         return
-    limit = int(s["mail_daily_limit"] or 80)
-    dmin, dmax = int(s["mail_delay_min"] or 40), int(s["mail_delay_max"] or 90)
+    limit = db.num(s, "mail_daily_limit")
+    dmin = db.num(s, "mail_delay_min", 0)
+    dmax = max(dmin, db.num(s, "mail_delay_max", 0))
     queue = db.q("SELECT * FROM companies WHERE status='queued' ORDER BY id")
     if not queue:
         db.log("Почта: очередь пуста")

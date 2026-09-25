@@ -15,7 +15,6 @@ from jobs import job
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
       "Chrome/140.0.0.0 Safari/537.36")  # Enbek blocks the default headless user agent
 SITE_NAMES = {"habr": "Хабр Карьера", "enbek": "Enbek"}
-MAX_DETAILS = 40  # new vacancy pages opened per run: enough for monitoring, gentle to the sites
 
 # ---------- contacts ----------
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
@@ -292,7 +291,8 @@ def monitor():
         db.log("Другие сайты: укажите запрос и хотя бы один сайт")
         return 0
     s["other_query"] = query
-    pages = max(1, min(10, int(s["other_pages"] or 2)))
+    pages = db.num(s, "other_pages")
+    max_details = db.num(s, "other_max_details", 0)  # new vacancy pages opened per run (0 = only the lists)
     rejected = filters.rejected_companies() if s["f_skip_rejected"] == "1" else set()
     known = {r["url"] for r in db.q("SELECT url FROM vacancies WHERE source IN ('habr','enbek')")}
     added = passed = details = 0
@@ -314,7 +314,7 @@ def monitor():
                 if job.stop_requested:
                     break
                 v["contacts"], v["summary"] = merge_contacts(), ""
-                if details < MAX_DETAILS:
+                if details < max_details:
                     try:
                         _habr_details(page, v, company_cache) if site == "habr" else _enbek_details(page, v)
                         details += 1
@@ -327,7 +327,7 @@ def monitor():
                     passed += ok
                     known.add(v["url"])
         browser.close()
-    left = " (остальные откроются в следующий раз)" if details >= MAX_DETAILS else ""
+    left = " (остальные откроются в следующий раз)" if max_details and details >= max_details else ""
     db.log(f"Другие сайты: новых вакансий {added}, прошли фильтры {passed}{left}")
     return passed
 

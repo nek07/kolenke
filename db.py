@@ -96,6 +96,11 @@ DEFAULTS = {
     "hh_pages": "3",
     "hh_daily_limit": "50",   # safety limit against captcha, not a goal
     "hh_weekly_goal": "150",  # responses per week
+    "hh_pause_min": "4",      # seconds between two hh responses (random in [min, max])
+    "hh_pause_max": "9",
+    "chat_max": "20",         # unread chats handled per check
+    "chat_robot_steps": "10", # HR-robot questions answered in a row in one chat
+    "other_max_details": "40",  # new vacancy pages opened per check on Хабр Карьера / Enbek
     "hh_exclude": "",         # comma-separated words; vacancy title containing any is skipped
     "f_salary_min": "",       # skip vacancies whose salary (upper bound) is below this
     "f_skip_no_salary": "0",
@@ -276,6 +281,16 @@ def log(msg: str):
 def count_today(table: str, col: str, status: str, where: str = "") -> int:
     today = date.today().isoformat()
     return q(f"SELECT COUNT(*) n FROM {table} WHERE status=? AND {col} LIKE ? {where}", (status, today + "%"))[0]["n"]
+
+
+def num(s: dict, key: str, lo: int = 1, hi: int | None = None) -> int:
+    """A user-set limit as an int: garbage or empty falls back to the default, then kept within [lo, hi]."""
+    try:
+        v = int(float(str(s.get(key, "")).replace(",", ".").strip()))
+    except ValueError:
+        v = int(DEFAULTS[key])
+    v = max(lo, v)
+    return min(v, hi) if hi is not None else v
 
 
 def fill(template: str, **kw) -> str:

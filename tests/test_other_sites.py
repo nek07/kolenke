@@ -182,3 +182,18 @@ def test_to_companies(client):
                                         ("от 455 000 тг.", "от 455 000 тг."), (None, None)])
 def test_tidy_salary(text, tidy):
     assert o.tidy_salary(text) == tidy
+
+
+def test_monitor_respects_vacancies_per_check(monkeypatch):
+    opened = []
+    db.set_settings({"other_query": "backend", "other_sites": "habr", "other_max_details": "1"})
+    items = [o.normalize_habr({"href": f"/vacancies/{i}", "title": f"Backend {i}", "company": "X", "chips": []}) for i in range(3)]
+    monkeypatch.setattr(o, "sync_playwright", fake_playwright)
+    monkeypatch.setattr(o, "_habr", lambda page, q, n: [dict(v) for v in items])
+    monkeypatch.setattr(o, "_habr_details", lambda page, v, cache: opened.append(v["url"]))
+    o.monitor()
+    assert len(opened) == 1 and db.q("SELECT COUNT(*) n FROM vacancies")[0]["n"] == 3  # all saved, one page opened
+    db.set_settings({"other_max_details": "0"})
+    items[:] = [o.normalize_habr({"href": "/vacancies/9", "title": "Backend 9", "company": "X", "chips": []})]
+    o.monitor()
+    assert len(opened) == 1  # 0 = only the lists

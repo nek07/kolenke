@@ -192,7 +192,7 @@ def search(fresh=False):
         source += ", опубликована за последние сутки"
     experience = [c for c in (s["f_experience"] or "").split(",") if c in EXPERIENCE_CODES]
     rejected = filters.rejected_companies() if s["f_skip_rejected"] == "1" else set()
-    pages = max(1, int(s["hh_pages"] or 1))
+    pages = db.num(s, "hh_pages")
     added = passed = with_match = 0
     with sync_playwright() as p:
         ctx, page = _open(p)
@@ -429,7 +429,9 @@ def apply_queue():
 
     s = db.get_settings()
     domain = s["hh_domain"]
-    limit = int(s["hh_daily_limit"] or 50)
+    limit = db.num(s, "hh_daily_limit")
+    pause_lo = db.num(s, "hh_pause_min", 0)
+    pause_hi = max(pause_lo, db.num(s, "hh_pause_max", 0))
     order = "skill_match IS NULL, skill_match DESC, id" if s["f_sort_match"] == "1" else "id"
     queue = db.q(f"SELECT * FROM vacancies WHERE source='hh' AND status='queued' ORDER BY {order}")
     resume_hash = s["hh_resume_hash"]
@@ -489,7 +491,7 @@ def apply_queue():
             human = {"applied": "отклик отправлен", "skipped": "пропущена", "attention": "нужны ответы на анкету", "error": "ошибка"}
             extra = (" + письмо ✓" if info["letter"] else "") if applied else ""
             db.log(f"hh: {v['title']} — {v['company']}: {human.get(status, status)}{extra}{' (' + note + ')' if note else ''}")
-            page.wait_for_timeout(random.randint(4000, 9000))
+            page.wait_for_timeout(random.randint(pause_lo, pause_hi) * 1000)
         ctx.close()
     db.log("hh: обработка очереди завершена")
 

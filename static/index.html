@@ -40,6 +40,25 @@ nav button:hover{background:var(--line-2);color:var(--ink)}
 nav button.on{background:var(--ink);color:var(--bg);font-weight:600}
 nav button.on .i{color:var(--accent)}
 nav .count{margin-left:auto;background:var(--accent);color:var(--accent-ink);border-radius:99px;font-size:12px;font-weight:700;padding:0 7px;line-height:20px}
+.searchbtn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);color:var(--muted);font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.searchbtn:hover{border-color:var(--ink-2);color:var(--ink-2)}
+.searchbtn .kbd{margin-left:auto}
+#search{width:min(640px,calc(100vw - 32px));max-height:min(560px,calc(100vh - 80px));margin:10vh auto auto;padding:0;border:1.5px solid var(--ink);border-radius:16px;background:var(--surface);color:var(--ink);box-shadow:4px 4px 0 var(--ink);overflow:hidden}
+#search[open]{display:flex;flex-direction:column}
+#search::backdrop{background:rgba(0,0,0,.35)}
+#search .sq{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+#search .sq input{border:0;background:none;padding:0;font-size:16px;box-shadow:none;outline:none}
+#sres{overflow:auto;padding:6px}
+#sres small{display:block;color:var(--muted);font-size:12px;font-weight:500;padding:10px 10px 4px}
+#sres .sr{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer}
+#sres .sr[aria-selected="true"]{background:var(--accent-soft)}
+#sres .ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--line-2);color:var(--ink-2)}
+#sres .ico .i{width:15px;height:15px}
+#sres .sr .m{flex:1;min-width:0}
+#sres .sr .m b{font-weight:500}
+#sres .sr .m .t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sres mark{background:var(--accent);color:var(--accent-ink);border-radius:3px;padding:0 1px}
+#sres .none{padding:18px 10px 8px;color:var(--muted);font-size:14px}
 .side-ap{margin-top:auto;border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--surface-2)}
 .side-ap .t{display:flex;align-items:center;justify-content:space-between;font-weight:600}
 .side-ap p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -163,6 +182,8 @@ a.ct:hover{background:var(--accent-soft)}
 #otable .osal{min-width:110px;max-width:150px;font-variant-numeric:tabular-nums}
 #otable td:nth-child(4){max-width:170px}
 .sum{font-size:13px;color:var(--ink-2);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:520px}
+.lh{margin:18px 0 10px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+#limitscard .lh:first-of-type{margin-top:4px}
 .stagepick{display:flex;flex-wrap:wrap;gap:6px}
 .stagepick button{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font:600 13px var(--sans);color:var(--ink-2);cursor:pointer}
 .stagepick button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
@@ -293,6 +314,9 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
   aside{position:sticky;height:auto;flex-direction:row;align-items:center;padding:10px 16px;border-right:0;border-bottom:1px solid var(--line);z-index:20;overflow-x:auto;gap:10px}
   .brand b,.navgroup small,.side-ap{display:none}
   .navgroup{flex-direction:row}
+  .searchbtn{width:auto;flex:none}
+  .searchbtn .lbl{display:none}
+  #search{margin-top:16px}
   nav button{padding:8px 10px}
   nav button span.lbl{display:none}
   nav button.on span.lbl{display:inline}
@@ -307,6 +331,7 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
 <div class="app">
 <aside>
   <div class="brand"><div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="7" width="17" height="13" rx="4.5" stroke="#141414" stroke-width="2"/><circle cx="9.5" cy="13.5" r="1.5" fill="#141414"/><circle cx="14.5" cy="13.5" r="1.5" fill="#141414"/><path d="M12 7V4" stroke="#141414" stroke-width="2" stroke-linecap="round"/></svg></div><b>kolenke</b></div>
+  <button type="button" class="searchbtn" onclick="openFind()" aria-label="Поиск по компаниям и вакансиям"><i data-i="search"></i><span class="lbl">Поиск</span><span class="kbd hide-m">⌘K</span></button>
   <nav id="tabs" class="navgroup">
     <small>Главное</small>
     <button data-t="dash" class="on"><i data-i="home"></i><span class="lbl">Сегодня</span></button>
@@ -416,12 +441,10 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
       <div class="seg" id="apmodeseg" style="margin-bottom:6px"><button data-v="review" onclick="setApMode('review')">С проверкой</button><button data-v="auto" onclick="setApMode('auto')">Полностью сам</button></div>
       <p class="hint" id="apmodehint" style="margin:0 0 16px"></p>
       <div class="grid">
-        <div><label class="f">Проверять каждые, мин</label><input data-s="autopilot_interval" type="number" min="10"></div>
         <div><label class="f">Работать с, час</label><input data-s="autopilot_from" type="number" min="0" max="23"></div>
         <div><label class="f">до, час</label><input data-s="autopilot_to" type="number" min="1" max="24"></div>
-        <div><label class="f">Цель откликов на неделю</label><input data-s="hh_weekly_goal" type="number" min="1"></div>
-        <div><label class="f">Не больше откликов в день</label><input data-s="hh_daily_limit" type="number" min="1"></div>
       </div>
+      <p class="hint" style="margin-top:10px">Как часто проверять, сколько откликов в день и паузы между ними — в <a href="#" onclick="openLimits();return false">Настройки → Лимиты и паузы</a></p>
       <div class="row" style="margin-top:16px;gap:14px"><label class="switch"><input type="checkbox" data-s="chat_auto"><span></span></label>
         <div><b>Отвечать HR-роботам самостоятельно</b><div class="hint" style="margin:0">Только если ответ есть в «Базе ответов». Живым рекрутерам бот не пишет без вас</div></div></div>
       <div class="row" style="margin-top:18px"><button class="btn primary" onclick="saveSettings()">Сохранить</button>
@@ -440,7 +463,6 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
         <div><label class="f">Регион</label><select data-s="hh_area">
           <option value="">Как в резюме / все</option><option value="40">Казахстан</option><option value="160">Алматы</option>
           <option value="159">Астана</option><option value="177">Шымкент</option><option value="1">Москва</option><option value="113">Россия</option></select></div>
-        <div><label class="f">Страниц поиска (по 50)</label><input data-s="hh_pages" type="number" min="1" max="40"></div>
         <div style="grid-column:1/-1"><label class="f">Не откликаться, если в названии есть</label><input data-s="hh_exclude" placeholder="например: senior, стажёр, продажи, flutter">
           <p class="hint">Через запятую. Такие вакансии сразу попадут в «Пропущены»</p></div>
       </div>
@@ -553,12 +575,7 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
       <label class="f" style="margin-top:14px">Письмо</label><textarea data-s="mail_body_template" id="mbody"></textarea>
       <div class="varchips" data-for="mbody"></div>
       <p class="hint">{company} и {position} берутся из списка компаний (если должность пустая, то «желаемая должность» из настроек), {name} и {phone} из настроек</p>
-      <details style="margin-top:12px"><summary class="hint" style="cursor:pointer;margin:0">Темп отправки</summary>
-        <div class="grid" style="margin-top:12px">
-          <div><label class="f">Писем в день</label><input data-s="mail_daily_limit" type="number"></div>
-          <div><label class="f">Пауза от, сек</label><input data-s="mail_delay_min" type="number"></div>
-          <div><label class="f">до, сек</label><input data-s="mail_delay_max" type="number"></div>
-        </div><p class="hint">Для Gmail безопасно 80–100 писем в день с паузами</p></details>
+      <p class="hint" style="margin-top:10px">Сколько писем в день и паузы между ними — в <a href="#" onclick="openLimits();return false">Настройки → Лимиты и паузы</a></p>
       <div class="row" style="margin-top:14px"><button class="btn primary" onclick="saveSettings()">Сохранить</button></div>
     </div>
     <div class="card step">
@@ -585,14 +602,13 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
       <div style="grid-column:span 2"><label class="f">Что ищем</label><input data-s="other_query" id="oquery" placeholder="например: backend разработчик"></div>
       <div><label class="f">Площадки</label><input type="hidden" data-s="other_sites" id="osites">
         <div class="chips" id="osrcpick"><button type="button" class="chip" data-v="habr" onclick="siteToggle('habr')">Хабр Карьера</button><button type="button" class="chip" data-v="enbek" onclick="siteToggle('enbek')">Enbek</button></div></div>
-      <div><label class="f">Страницы поиска на каждой</label><input data-s="other_pages" type="number" min="1" max="10"></div>
       <div style="grid-column:1/-1"><label class="f">Страны и города</label><input data-s="other_countries" placeholder="например: Астана, Алматы, удалённо — пусто: любые">
         <p class="hint">Через запятую: страна («Казахстан») или город («Астана»). «удалённо» пропускает вакансии, где можно работать из дома. Слова-исключения, зарплата и компании-исключения берутся из фильтров HeadHunter</p></div>
     </div>
     <div class="row" style="margin-top:14px">
       <button class="btn primary" onclick="saveSettings(true).then(()=>run('other_search'))"><i data-i="search"></i>Найти сейчас</button>
       <button class="btn" onclick="saveSettings()">Сохранить</button>
-      <span class="t2">Бот открывает только публичные страницы и ничего не отправляет от вашего имени</span>
+      <span class="t2">Бот открывает только публичные страницы и ничего не отправляет от вашего имени. Сколько страниц смотреть — в <a href="#" onclick="openLimits();return false">лимитах</a></span>
     </div>
   </div>
 
@@ -662,6 +678,39 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
     </div>
     <div class="row" style="margin-top:16px"><button class="btn primary" onclick="saveSettings()">Сохранить</button></div>
   </div>
+  <div class="card" id="limitscard">
+    <h2><i data-i="sliders"></i>Лимиты и паузы</h2><p class="sub">Всё, сколько и как часто делает бот, настраиваете вы. Большие значения ускоряют поиск, но повышают риск капчи и ограничений на hh</p>
+    <h4 class="lh">HeadHunter</h4>
+    <div class="grid">
+      <div><label class="f">Не больше откликов в день</label><input data-s="hh_daily_limit" type="number" min="1"><p class="hint">Безопасно: 30–60</p></div>
+      <div><label class="f">Цель откликов на неделю</label><input data-s="hh_weekly_goal" type="number" min="1"></div>
+      <div><label class="f">Пауза между откликами, от (сек)</label><input data-s="hh_pause_min" type="number" min="0"></div>
+      <div><label class="f">до (сек)</label><input data-s="hh_pause_max" type="number" min="0"><p class="hint">Случайная пауза выглядит естественнее</p></div>
+      <div><label class="f">Страниц поиска (по 50 вакансий)</label><input data-s="hh_pages" type="number" min="1"></div>
+    </div>
+    <h4 class="lh">Автопилот и чаты</h4>
+    <div class="grid">
+      <div><label class="f">Проверять каждые, мин</label><input data-s="autopilot_interval" type="number" min="1"><p class="hint">Реже 10 минут почти не даёт выигрыша</p></div>
+      <div><label class="f">Чатов за одну проверку</label><input data-s="chat_max" type="number" min="1"></div>
+      <div><label class="f">Вопросов HR-робота подряд</label><input data-s="chat_robot_steps" type="number" min="1"></div>
+    </div>
+    <h4 class="lh">Письма компаниям</h4>
+    <div class="grid">
+      <div><label class="f">Писем в день</label><input data-s="mail_daily_limit" type="number" min="1"><p class="hint">Для Gmail безопасно 80–100</p></div>
+      <div><label class="f">Пауза между письмами, от (сек)</label><input data-s="mail_delay_min" type="number" min="0"></div>
+      <div><label class="f">до (сек)</label><input data-s="mail_delay_max" type="number" min="0"></div>
+    </div>
+    <h4 class="lh">Хабр Карьера и Enbek</h4>
+    <div class="grid">
+      <div><label class="f">Страниц поиска на каждой</label><input data-s="other_pages" type="number" min="1"></div>
+      <div><label class="f">Открывать новых вакансий за проверку</label><input data-s="other_max_details" type="number" min="0"><p class="hint">Остальные откроются при следующей. 0 — только списки, без контактов</p></div>
+    </div>
+    <h4 class="lh">Воронка</h4>
+    <div class="grid">
+      <div><label class="f">Предлагать «напомнить о себе» через, дней</label><input data-s="followup_days" type="number" min="1"></div>
+    </div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" onclick="saveSettings()">Сохранить</button><button class="btn ghost" onclick="resetLimits()">Вернуть рекомендуемые</button></div>
+  </div>
   <div class="card" id="panelcard">
     <h2><i data-i="globe"></i>Облачная панель</h2><p class="sub" id="panelsub">Открывайте kolenke с телефона: действия всё равно выполняет этот компьютер, с IP вашей сети</p>
     <div id="panelbody" class="hint" style="margin:0"></div>
@@ -692,6 +741,11 @@ pre.preview{white-space:pre-wrap;background:var(--surface-2);border:1px solid va
 
 <div id="drawer"><div class="shade" onclick="closeDrawer()"></div><div class="panel" id="panel"></div></div>
 <div id="review"><div class="rv" id="rv"></div></div>
+<dialog id="search" closedby="any" aria-label="Поиск">
+  <div class="sq"><i data-i="search"></i><input id="sq" type="search" autocomplete="off" placeholder="Компания, вакансия, почта или текст сообщения"
+    role="combobox" aria-expanded="true" aria-controls="sres" aria-autocomplete="list"><span class="kbd hide-m">esc</span></div>
+  <div id="sres" role="listbox" aria-label="Результаты"></div>
+</dialog>
 <div id="toasts"></div>
 <div id="activity"><div class="spin"></div><span id="actname"></span><button class="btn sm" onclick="api('/api/jobs/stop',{})"><i data-i="stop"></i>Стоп</button></div>
 <div id="modal"><div class="box"><h3 id="mtitle"></h3><p id="mtext"></p><div class="row" style="justify-content:flex-end"><button class="btn" id="mno">Отмена</button><button class="btn primary" id="myes">Да</button></div></div></div>
@@ -972,7 +1026,7 @@ async function openDrawer(id){
     if(v.applied_at) ev.push({ts:v.applied_at, kind:'applied', text:`Отклик отправлен${v.resume?' с резюме «'+v.resume+'»':''}`});
     if(v.hh_state) ev.push({ts:v.hh_state_at, kind:'employer', text:'Работодатель: '+v.hh_state});
   }
-  const chats = v.chats.map(c => `<div class="qa"><div class="t2">${esc(c.robot?'HR-робот':'Работодатель')} · ${date(c.created_at)}</div>${esc(c.message)}
+  const chats = v.chats.map(c => `<div class="qa"><div class="t2">${esc(c.robot?'HR-робот':'Работодатель')} · ${date(c.created_at)}</div><div style="white-space:pre-wrap">${msgParts(c.message).map(esc).join('\n\n')}</div>
     ${c.reply && c.status!=='pending' && c.status!=='info' ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line-2)"><span class="t2">${c.status==='auto_sent'?'Ответил бот':'Вы ответили'} · ${date(c.sent_at)}</span><div>${esc(c.reply)}</div></div>` : c.status==='pending' ? `<div class="t2" style="margin-top:6px">Ждёт вашего ответа на вкладке «Чаты»</div>` : ''}</div>`).join('');
   $('#panel').innerHTML = `<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><div style="flex:1"><h2>${esc(v.title)}</h2><div class="t2" style="font-size:14.5px;margin-top:4px">${esc(v.company)}</div></div>
       <button class="btn ghost sm" onclick="closeDrawer()" title="Закрыть">${ic('x')}</button></div>
@@ -1146,7 +1200,71 @@ function selUI(tid, bar, lbl){
 }
 [['hhtable','hhsel','hhselc'],['ctable','csel','cselc'],['otable','osel','oselc']].forEach(([t,b,l]) => document.getElementById(t).addEventListener('change', () => selUI(t,b,l)));
 
+/* ---------- search ---------- */
+let sTimer = null, sSeq = 0;
+function openFind(){ const d = $('#search'); if(d.open) return; d.showModal(); $('#sq').select(); runSearch() }
+function closeFind(){ $('#search').close() }
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); openFind() }
+  else if(e.key==='/' && !e.target.closest('input,textarea,select,[contenteditable]') && !$('#review').classList.contains('on')){ e.preventDefault(); openFind() }
+});
+// Safari has no closedby yet: close on a click on the backdrop ourselves
+if(!('closedBy' in HTMLDialogElement.prototype)) $('#search').addEventListener('click', e => {
+  if(e.target !== e.currentTarget) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) closeFind();
+});
+$('#sq').addEventListener('input', () => { clearTimeout(sTimer); sTimer = setTimeout(runSearch, 150) });
+$('#sq').addEventListener('keydown', e => {
+  const items = [...document.querySelectorAll('#sres .sr')]; if(!items.length) return;
+  let i = items.findIndex(x => x.getAttribute('aria-selected')==='true');
+  if(e.key==='ArrowDown' || e.key==='ArrowUp'){ e.preventDefault(); i = (i + (e.key==='ArrowDown'?1:-1) + items.length) % items.length; selectSR(items, i) }
+  else if(e.key==='Enter' && i >= 0){ e.preventDefault(); items[i].click() }
+});
+function selectSR(items, i){
+  items.forEach((x, j) => x.setAttribute('aria-selected', j===i)); items[i].scrollIntoView({block:'nearest'});
+  $('#sq').setAttribute('aria-activedescendant', items[i].id);
+}
+// highlight the query words in already-escaped text
+function markQ(html, q){
+  const ws = q.toLowerCase().split(/\s+/).filter(w => w.length > 1).map(w => esc(w).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+  return ws.length ? html.replace(new RegExp('(' + ws.join('|') + ')', 'gi'), '<mark>$1</mark>') : html;
+}
+async function runSearch(){
+  const q = $('#sq').value.trim(), seq = ++sSeq, box = $('#sres');
+  if(!q){ box.innerHTML = `<div class="none">Ищет по вакансиям со всех сайтов, чатам с работодателями и списку писем компаниям</div>`; return }
+  // plain fetch, not api(): a failure shows once in the box instead of a toast on every keystroke
+  const res = await fetch('/api/search?q=' + encodeURIComponent(q)).catch(() => null);
+  if(seq !== sSeq) return;  // a newer query already answered
+  if(!res || !res.ok){ box.innerHTML = `<div class="none">${res && res.status===404 ? 'Сервер kolenke запущен со старой версией, где поиска ещё нет. Перезапустите kolenke' : 'Поиск сейчас недоступен: kolenke не отвечает'}</div>`; return }
+  const r = await res.json();
+  const m = s => markQ(esc(s||''), q), sources = {hh:'hh', habr:'Хабр Карьера', enbek:'Enbek', manual:'вручную'};
+  const snippet = s => { const t = msgParts(s).join(' · ').replace(/\s+/g,' '), w = q.toLowerCase().split(/\s+/)[0], at = t.toLowerCase().indexOf(w);
+    return (at > 60 ? '…' : '') + t.slice(Math.max(0, at - 60), Math.max(0, at - 60) + 160) };
+  const row = (i, icon, main, sub, act) => `<div class="sr" id="sr${i}" role="option" aria-selected="false" onclick="closeFind();${act}">
+    <div class="ico">${ic(icon)}</div><div class="m"><b>${main}</b><div class="t2">${sub}</div></div></div>`;
+  let n = 0, html = '';
+  if(r.vacancies.length) html += '<small>Вакансии</small>' + r.vacancies.map(v => row(n++, 'briefcase', m(v.title), `${m(v.company)} · ${esc(sources[v.source]||v.source)} · ${pill(v.status)}`, `openDrawer(${v.id})`)).join('');
+  if(r.chats.length) html += '<small>Чаты</small>' + r.chats.map(c => row(n++, 'chat', m(c.company), `${c.vacancy ? m(c.vacancy)+' · ' : ''}${m(snippet(c.message))}`,
+    `showTab('chats');chatView('${c.status==='pending'?'pending':c.status==='info'?'info':'history'}')`)).join('');
+  if(r.companies.length) html += '<small>Письма компаниям</small>' + r.companies.map(c => row(n++, 'mail', m(c.name||c.email), `${m(c.email)}${c.position?' · '+m(c.position):''} · ${pill(c.status)}`, `openCompany(${c.id})`)).join('');
+  if(!n) html = `<div class="none">В kolenke про «${esc(q)}» ничего нет. Можно поискать снаружи:</div>`;
+  const ext = [[`https://${S.hh_domain||'hh.kz'}/employers_list?query=`, 'Компания на hh'], ['https://www.google.com/search?q=', 'Google']];
+  html += '<small>В интернете</small>' + ext.map(([u, l]) => row(n++, 'external', `${l}: «${esc(q)}»`, 'откроется в новой вкладке', `window.open('${u}'+encodeURIComponent(${esc(JSON.stringify(q))}),'_blank','noopener')`)).join('');
+  box.innerHTML = html;
+  const items = [...box.querySelectorAll('.sr')]; if(items.length) selectSR(items, 0);
+}
+async function openCompany(id){
+  cFilter = ''; showTab('mail'); await loadCompanies();
+  const tr = $(`#ctable input[value="${id}"]`)?.closest('tr'); if(!tr) return;
+  tr.scrollIntoView({behavior:'smooth', block:'center'}); tr.classList.add('sel'); setTimeout(() => tr.classList.remove('sel'), 2000);
+}
+
 /* ---------- chats ---------- */
+// same cleanup as chat_bot.clean_text, for items saved before it existed
+const cleanMsg = s => (s||'').replace(/[ ​⁠﻿]/g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+const MSG_SEP = /\n\n———\n\n/;
+const msgParts = s => cleanMsg(s).split(MSG_SEP).map(cleanMsg).filter(Boolean);
 function chatView(v){ chatMode = v; document.querySelectorAll('#chatseg button').forEach(b => b.classList.toggle('on', b.dataset.v===v)); loadChats() }
 async function loadChats(){
   const rows = await api(chatMode==='history' ? '/api/chats/history' : '/api/chats?status=' + chatMode);
@@ -1154,7 +1272,7 @@ async function loadChats(){
   if(chatMode==='pending') $('#chatbody').innerHTML = rows.map(c => `<div class="msgcard">
       <div class="who"><div class="avatar">${initials(c.company)}</div><div style="flex:1"><b>${esc(c.company)}</b><div class="t2">${esc(c.vacancy)}</div></div>
       <span class="pill ${c.robot?'blue':'accent'}">${c.robot?'HR-робот':'Рекрутер'}</span><span class="t2">${ago(c.created_at)}</span></div>
-      <div class="bubble">${esc(c.message)}</div>
+      ${msgParts(c.message).map(m => `<div class="bubble">${esc(m)}</div>`).join('')}
       <textarea id="reply${c.id}" style="min-height:80px" placeholder="Напишите ответ…">${esc(c.reply||'')}</textarea>
       <div class="row" style="margin-top:10px"><button class="btn primary" onclick="chatSend(${c.id})">${ic('send')}Отправить</button>
       <a class="btn ghost" href="https://hh.kz/chat/${esc(c.chat_id)}" target="_blank">${ic('external')}Открыть чат</a><span class="spacer"></span>
@@ -1162,7 +1280,7 @@ async function loadChats(){
       || `<div class="card"><div class="empty"><div class="em">💬</div><b>Все сообщения отвечены</b>Когда работодатель напишет, сообщение появится здесь, а на Mac придёт уведомление</div></div>`;
   else $('#chatbody').innerHTML = `<div class="card" style="padding:8px 22px">` + (rows.map(c => `<div class="feed"><div class="it">
       <div class="ico ${chatMode==='info'?'':c.status==='auto_sent'?'blue':'green'}">${ic(chatMode==='info'?'mail':c.status==='auto_sent'?'robot':'user')}</div>
-      <div class="m"><b>${esc(c.company)}</b> <span class="t2">${esc(c.vacancy)}</span><div class="t2" style="margin-top:4px">${esc(c.message.slice(0,220))}</div>
+      <div class="m"><b>${esc(c.company)}</b> <span class="t2">${esc(c.vacancy)}</span><div class="t2" style="margin-top:4px">${esc(msgParts(c.message).join(' · ').replace(/\s+/g,' ').slice(0,220))}</div>
       ${c.reply && chatMode!=='info' ? `<div style="margin-top:6px">↳ ${esc(c.reply)} <span class="t2">· ${c.status==='auto_sent'?'ответил бот':c.status==='approved'?'отправляется':c.status==='closed'?'не отправлено: работодатель закрыл чат':'ответили вы'}</span></div>`:''}</div>
       <time>${ago(c.sent_at || c.created_at)}</time></div></div>`).join('') || `<div class="empty"><div class="em">🗂️</div><b>Пока пусто</b></div>`) + `</div>`;
 }
@@ -1372,6 +1490,14 @@ async function panelInfo(){
     ? 'Не подключено. В панели получите код привязки и выполните в папке kolenke:<pre class="preview" style="margin-top:8px">.venv/bin/python agent.py pair &lt;адрес панели&gt; &lt;код&gt;</pre>Затем запускайте kolenke командой <code>.venv/bin/python agent.py</code>'
     : `Панель: <b>${esc(a.server)}</b> · ${esc(a.email)} · ${a.connected ? '<span class="pill green">на связи</span>' : '<span class="pill">нет связи</span>'}${a.error ? `<div class="t2" style="margin-top:6px">${esc(a.error)}</div>` : ''}
        ${a.connected ? '' : '<div class="t2" style="margin-top:6px">Связь есть, только если kolenke запущен командой agent.py</div>'}`;
+}
+function openLimits(){ showTab('settings'); setTimeout(() => $('#limitscard').scrollIntoView({behavior:'smooth', block:'start'}), 50) }
+const LIMIT_DEFAULTS = {hh_daily_limit:50, hh_weekly_goal:150, hh_pause_min:4, hh_pause_max:9, hh_pages:3, autopilot_interval:30, chat_max:20,
+  chat_robot_steps:10, mail_daily_limit:80, mail_delay_min:40, mail_delay_max:90, other_pages:2, other_max_details:40, followup_days:5};
+async function resetLimits(){
+  if(!await ask('Вернуть рекомендуемые лимиты?', 'Ваши значения в этом блоке заменятся на безопасные по умолчанию', 'Вернуть')) return;
+  Object.entries(LIMIT_DEFAULTS).forEach(([k,v]) => { const el = document.querySelector(`[data-s="${k}"]`); if(el) el.value = v });
+  await saveSettings();
 }
 async function panelLogout(){ await fetch('/auth/logout', {method:'POST', headers:{'X-JobBot':'1'}}); location.href = '/login' }
 panelInfo().finally(() => loadSettings().then(() => { poll().then(refresh); }));

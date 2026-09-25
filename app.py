@@ -431,6 +431,29 @@ def status():
     }
 
 
+# ---------- search ----------
+@app.get("/api/search")
+def search(q: str = ""):
+    """One box for everything a company can show up in: vacancies on all sites, employer chats, the mail list.
+    Filtered in Python: SQLite LIKE only ignores case for Latin letters, and most names here are Cyrillic."""
+    import filters
+    words = filters.norm(q).split()
+    if not words:
+        return {"vacancies": [], "chats": [], "companies": []}
+    hit = lambda *fields: all(w in filters.norm(" ".join(f or "" for f in fields)) for w in words)
+    vacancies = [v for v in db.q("SELECT id, source, title, company, status, created_at FROM vacancies ORDER BY id DESC")
+                 if hit(v["title"], v["company"])]
+    chats, seen = [], set()
+    for c in db.q("SELECT id, chat_id, company, vacancy, message, status, created_at FROM chat_items "
+                  "WHERE status != 'hidden' ORDER BY id DESC"):
+        if c["chat_id"] not in seen and hit(c["company"], c["vacancy"], c["message"]):
+            seen.add(c["chat_id"])  # one row per chat, its latest message
+            chats.append(c)
+    companies = [c for c in db.q("SELECT id, name, email, position, status FROM companies ORDER BY id DESC")
+                 if hit(c["name"], c["email"], c["position"])]
+    return {"vacancies": vacancies[:20], "chats": chats[:10], "companies": companies[:10]}
+
+
 # ---------- chats & answer base ----------
 @app.get("/api/chats")
 def chats(status: str = "pending"):

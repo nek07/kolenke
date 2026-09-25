@@ -207,3 +207,11 @@ def test_reply_to_closed_chat_is_dropped_not_retried(monkeypatch):
     monkeypatch.setattr(cb, "can_write", lambda page: False)
     cb._send_approved(page, "hh.kz")
     assert db.q("SELECT status FROM chat_items WHERE msg_id='m1'")[0]["status"] == "closed"
+
+
+@pytest.mark.parametrize("raw, lo, hi, expected", [
+    ("80", 1, None, 80), ("", 1, None, 50), ("abc", 1, None, 50), ("0", 1, None, 1), ("-5", 0, None, 0),
+    ("7.9", 1, None, 7), ("1 000", 1, None, 50), ("500", 1, 100, 100),
+])
+def test_user_limits_are_read_safely(raw, lo, hi, expected):
+    assert db.num({"hh_daily_limit": raw}, "hh_daily_limit", lo, hi) == expected  # default for hh_daily_limit is 50
