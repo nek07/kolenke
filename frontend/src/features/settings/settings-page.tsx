@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, FileText, Mail, SlidersHorizontal, Upload, User } from "lucide-react";
+import { Briefcase, FileText, Mail, SlidersHorizontal, Sparkles, Upload, User } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 
@@ -8,16 +8,18 @@ import { $api } from "@/api/client";
 import { fileBody } from "@/api/upload";
 import { PageHeader, Section } from "@/components/blocks";
 import { Confirm } from "@/components/confirm-button";
-import { TextField } from "@/components/form";
+import { SwitchField, TextField } from "@/components/form";
 import { useTasks } from "@/components/providers/tasks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRefresh } from "@/hooks/use-refresh";
 import { useSaveSettings, useSettings } from "@/hooks/use-settings";
 import { useSettingsForm } from "@/hooks/use-settings-form";
+import { cn } from "@/lib/utils";
 
 const PROFILE_KEYS = ["full_name", "phone", "desired_position"] as const;
 const MAIL_KEYS = ["smtp_user", "smtp_password", "smtp_host", "smtp_port"] as const;
+const AI_KEYS = ["ai_review", "ai_model", "ollama_url", "review_market_size"] as const;
 
 /** Recommended limits: «Вернуть рекомендуемые» restores exactly these. */
 const LIMIT_DEFAULTS = {
@@ -240,6 +242,73 @@ function Gmail() {
   );
 }
 
+function ResumeReview() {
+  const { form, submit, saving } = useSettingsForm(AI_KEYS);
+  const status = $api.useQuery("get", "/api/resume-reviews/ai-status", {}, { refetchInterval: 15_000 });
+  const st = status.data;
+  const code = "rounded bg-muted px-1.5 py-0.5 font-mono text-[12.5px]";
+  return (
+    <Section
+      id="ai"
+      title={icon(Sparkles, "Проверка резюме")}
+      description="Проверки и сравнение с рынком работают всегда. ИИ-разбор добавляет мнение рекрутера и переписанные строки опыта"
+    >
+      <SwitchField
+        control={form.control}
+        name="ai_review"
+        title="ИИ-разбор локальной моделью (Qwen)"
+        hint="Модель работает на вашем компьютере через Ollama: бесплатно, без ключей, резюме никуда не отправляется"
+      />
+      {st && (
+        <div className={cn("mt-4 rounded-xl px-3.5 py-3 text-sm", st.model_ready ? "bg-success-soft" : "bg-warning-soft")}>
+          <b>{st.model_ready ? "Модель готова" : st.running ? "Модель не скачана" : "Ollama не запущена"}</b>
+          <p className="mt-0.5 text-ink-2">{st.message}</p>
+          {!st.running && (
+            <p className="mt-1.5 text-ink-2">
+              Установка один раз: <code className={code}>brew install ollama</code>, затем <code className={code}>ollama serve</code> и{" "}
+              <code className={code}>ollama pull {form.watch("ai_model") || "qwen3:8b"}</code>
+            </p>
+          )}
+        </div>
+      )}
+      <div className="mt-4 grid gap-3.5 sm:grid-cols-3">
+        <TextField
+          form={form}
+          name="ai_model"
+          label="Модель"
+          placeholder="qwen3:8b"
+          hint="qwen3:8b — лучше качество (~5 ГБ, от 16 ГБ памяти), qwen3:4b — быстрее и легче (~2.5 ГБ)"
+        />
+        <TextField form={form} name="ollama_url" label="Адрес Ollama" placeholder="http://127.0.0.1:11434" />
+        <TextField
+          form={form}
+          name="review_market_size"
+          type="number"
+          min={5}
+          max={60}
+          label="Вакансий hh для сравнения"
+          hint="Больше — точнее, но дольше и выше риск капчи. Рекомендуется 20–30"
+        />
+      </div>
+      <div className="mt-4 flex gap-2">
+        <Button
+          variant="brand"
+          disabled={saving}
+          onClick={async () => {
+            await submit();
+            await status.refetch();
+          }}
+        >
+          Сохранить
+        </Button>
+        <Button variant="outline" disabled={status.isFetching} onClick={() => status.refetch()}>
+          Проверить модель
+        </Button>
+      </div>
+    </Section>
+  );
+}
+
 export function SettingsPage() {
   return (
     <>
@@ -248,6 +317,7 @@ export function SettingsPage() {
       <Limits />
       <HhAccount />
       <ResumeFile />
+      <ResumeReview />
       <Gmail />
     </>
   );

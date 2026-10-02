@@ -55,6 +55,24 @@ def test_sync_updates_known_and_adds_manual_responses():
     assert manual["stage"] == "declined"
 
 
+def test_sync_archive_tab_replaces_only_waiting_states():
+    waiting = add_vacancy(ext_id="300", status="applied", applied_at=now(), hh_state="не просмотрен")
+    declined = add_vacancy(ext_id="301", status="applied", applied_at=now(), hh_state="отказ")
+    row = {"state": "archived", "state_text": "Архив", "title": "", "company": "", "date": ""}
+    assert responses._store("hh.kz", {**row, "href": "https://hh.kz/vacancy/300"}, archived=True) == (1, 0)
+    assert responses._store("hh.kz", {**row, "href": "https://hh.kz/vacancy/301"}, archived=True) == (0, 0)
+    assert responses._store("hh.kz", {**row, "href": "https://hh.kz/vacancy/302"}, archived=True) == (0, 0)
+    states = {r["ext_id"]: r["hh_state"] for r in query("SELECT ext_id, hh_state FROM vacancies WHERE id IN (?, ?)", (waiting, declined))}
+    assert states == {"300": "в архиве", "301": "отказ"}
+    assert not query("SELECT 1 FROM vacancies WHERE ext_id='302'")
+
+    # a real state shown in the archive still counts, even over an earlier one
+    viewed = add_vacancy(ext_id="303", status="applied", applied_at=now(), hh_state="просмотрен")
+    discard = {**row, "state": "discard", "state_text": "Отказ", "href": "https://hh.kz/vacancy/303"}
+    assert responses._store("hh.kz", discard, archived=True) == (1, 0)
+    assert query("SELECT hh_state, stage FROM vacancies WHERE id=?", (viewed,))[0] == {"hh_state": "отказ", "stage": "declined"}
+
+
 def test_autopilot_review_mode_waits_for_you(monkeypatch, notifications):
     settings.save({"autopilot_mode": "review", "other_monitor": False})
     monkeypatch.setattr(autopilot, "search", lambda fresh: add_vacancy(ext_id="1"))

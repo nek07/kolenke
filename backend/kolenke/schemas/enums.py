@@ -80,3 +80,29 @@ EXPERIENCE_LABELS = {
     Experience.between_3_and_6: "3–6 лет",
     Experience.more_than_6: "более 6 лет",
 }
+
+
+class Grade(StrEnum):
+    intern = "intern"
+    junior = "junior"
+    middle = "middle"
+    senior = "senior"
+    lead = "lead"
+
+
+GRADE_LABELS = {
+    Grade.intern: "Стажёр", Grade.junior: "Junior", Grade.middle: "Middle", Grade.senior: "Senior", Grade.lead: "Lead",
+}
+
+
+class ReviewStatus(StrEnum):
+    pending = "pending"
+    running = "running"
+    done = "done"
+    error = "error"
+
+
+class CheckStatus(StrEnum):
+    passed = "pass"
+    warn = "warn"
+    fail = "fail"

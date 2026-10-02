@@ -54,7 +54,9 @@ export function dateTime(ts: string | null | undefined): string {
 export const isoDay = (d = new Date()) => d.toLocaleDateString("sv-SE");
 
 /** A refusal is shown softly: «не сейчас». */
-export const gentle = (text: string | null | undefined) => (text ?? "").replace(/отказ/gi, "не сейчас");
+/** A refusal is shown softly: the word «отказ» on its own («Работодатель: отказ») becomes «не сейчас», never a part of
+ * another word («отказала» must stay readable). JS \b does not see Cyrillic letters, hence the lookarounds. */
+export const gentle = (text: string | null | undefined) => (text ?? "").replace(/(?<![а-яё])отказ(?![а-яё])/gi, "не сейчас");
 
 export const INVITE_RE = /приглаш|собесед|выход/;
 

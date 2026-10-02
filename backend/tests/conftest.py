@@ -15,7 +15,8 @@ from kolenke.workers.runner import runner  # noqa: E402
 
 BACKEND = Path(__file__).resolve().parent.parent
 FIXTURES = BACKEND / "tests" / "fixtures"
-TABLES = ["vacancies", "companies", "answers", "questions", "chat_items", "events", "log", "settings"]
+TABLES = ["vacancies", "companies", "answers", "questions", "chat_items", "events", "log", "settings", "resume_reviews",
+          "market_vacancies"]
 
 ensure_dirs(get_config())
 db.init()

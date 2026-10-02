@@ -196,10 +196,12 @@ def apply_queue() -> None:
             if vacancies.applied_today_hh() >= s.hh_daily_limit:
                 log(f"hh: достигнут дневной лимит ({s.hh_daily_limit}). Остальное завтра")
                 break
-            if v["company"] and norm(v["company"]) in rejected:  # the refusal may have come after it was queued
-                note = "эта компания уже отказала вам раньше"
+            # the refusal may have come after the autopilot queued it; a vacancy you queued yourself is your decision
+            if v["company"] and norm(v["company"]) in rejected and events.queued_by_autopilot(v["id"]):
+                note = "эта компания уже отвечала вам «не сейчас»"
                 vacancies.skip(v["id"], note)
                 events.add(v["id"], "filtered", f"Не откликаюсь: {note}")
+                log(f"hh: {v['title']} — {v['company']}: пропущена ({note})")
                 continue
             letter = fill(s.hh_letter_template, s, v["company"], v["title"])
             info = {"letter": False, "letter_via": None, "resume": None, "form": []}

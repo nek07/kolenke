@@ -137,7 +137,74 @@ def _v2_indexes(c: sqlite3.Connection) -> None:
     c.execute("CREATE INDEX IF NOT EXISTS chat_items_status ON chat_items(status)")
 
 
-MIGRATIONS: list[Callable[[sqlite3.Connection], None]] = [_v1_base, _v2_indexes]
+def _v3_resume_reviews(c: sqlite3.Connection) -> None:
+    c.executescript("""
+    CREATE TABLE IF NOT EXISTS resume_reviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        created_at TEXT,
+        finished_at TEXT,
+        status TEXT NOT NULL DEFAULT 'pending',  -- pending, running, done, error
+        progress TEXT,                           -- what the review is doing now, for the page
+        role TEXT,
+        grade TEXT,
+        source_name TEXT,                        -- file name or «Текст из формы»
+        resume_text TEXT,
+        use_market INTEGER,
+        use_ai INTEGER,
+        score INTEGER,
+        report TEXT,                             -- json ResumeReport
+        error TEXT
+    );
+    -- vacancies read for the market comparison; kept a day so a second review of the same role is instant
+    CREATE TABLE IF NOT EXISTS market_vacancies (
+        url TEXT PRIMARY KEY,
+        source TEXT,
+        query TEXT,
+        grade TEXT,
+        title TEXT,
+        company TEXT,
+        skills TEXT,                             -- json list, as the employer wrote them
+        experience TEXT,
+        salary_from INTEGER,
+        salary_to INTEGER,
+        currency TEXT,
+        description TEXT,
+        fetched_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS market_query ON market_vacancies(query, grade, fetched_at);
+    """)
+
+
+def _v4_market_cache_per_grade(c: sqlite3.Connection) -> None:
+    """Neighbouring grades share vacancies on hh: one cache row per grade, so one grade no longer evicts another."""
+    c.executescript("""
+    CREATE TABLE market_vacancies_v4 (
+        url TEXT,
+        source TEXT,
+        query TEXT,
+        grade TEXT,
+        title TEXT,
+        company TEXT,
+        skills TEXT,                             -- json list, as the employer wrote them
+        experience TEXT,
+        salary_from INTEGER,
+        salary_to INTEGER,
+        currency TEXT,
+        description TEXT,
+        fetched_at TEXT,
+        PRIMARY KEY (url, query, grade)
+    );
+    INSERT INTO market_vacancies_v4 SELECT url, source, query, grade, title, company, skills, experience,
+        salary_from, salary_to, currency, description, fetched_at FROM market_vacancies;
+    DROP TABLE market_vacancies;
+    ALTER TABLE market_vacancies_v4 RENAME TO market_vacancies;
+    CREATE INDEX IF NOT EXISTS market_query ON market_vacancies(query, grade, fetched_at);
+    """)
+
+
+MIGRATIONS: list[Callable[[sqlite3.Connection], None]] = [
+    _v1_base, _v2_indexes, _v3_resume_reviews, _v4_market_cache_per_grade,
+]
 
 DEFAULT_ANSWERS = [
     ("Зарплатные ожидания", "зарплат, ожидани, доход, оклад, вилк, сколько хотите"),

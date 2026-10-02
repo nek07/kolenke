@@ -15,7 +15,7 @@ from kolenke.db.repositories import events, settings  # noqa: E402
 
 ensure_dirs(get_config())
 db.init()
-for table in ("vacancies", "companies", "chat_items", "events", "log", "questions"):
+for table in ("vacancies", "companies", "chat_items", "events", "log", "questions", "resume_reviews"):
     execute(f"DELETE FROM {table}")
 
 now = datetime.now()
@@ -53,3 +53,12 @@ insert("INSERT INTO chat_items(chat_id, msg_id, company, vacancy, message, robot
 insert("INSERT INTO questions(text, source, seen, created_at) VALUES ('Есть ли у вас водительские права?', 'form', 2, ?)", (iso(now),))
 events.log("hh: поиск завершён, новых вакансий: 3, прошли фильтры: 3")
 print(f"seeded {get_config().db_path} (invited vacancy id {applied})")
+
+# a finished resume review, built locally (no market sample: the tests never go to hh)
+from pathlib import Path  # noqa: E402
+
+from kolenke.db.repositories import reviews  # noqa: E402
+from kolenke.services.resume import review  # noqa: E402
+
+resume_text = (Path(__file__).parent / "fixtures" / "resumes" / "weak_junior.txt").read_text()
+review.run(reviews.create("Аналитик данных", "junior", "resume.pdf", resume_text, False, False))

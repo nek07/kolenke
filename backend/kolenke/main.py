@@ -9,6 +9,7 @@ from kolenke import db
 from kolenke.api import api_router
 from kolenke.api.security import LocalOnlyMiddleware
 from kolenke.config import ensure_dirs, get_config
+from kolenke.services.resume import review
 from kolenke.workers import scheduler
 
 
@@ -23,6 +24,7 @@ def create_app() -> FastAPI:
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         ensure_dirs(cfg)
         db.init()
+        review.recover()
         if cfg.background:
             scheduler.start()
         yield

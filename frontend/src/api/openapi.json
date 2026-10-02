@@ -1398,6 +1398,277 @@
         }
       }
     },
+    "/api/resume-reviews/options": {
+      "get": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Review Options",
+        "operationId": "review_options",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewOptions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/resume-reviews/ai-status": {
+      "get": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Ai Status",
+        "description": "Whether Ollama runs on this computer and the chosen model is downloaded.",
+        "operationId": "ai_status",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/resume-reviews": {
+      "get": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "List Reviews",
+        "operationId": "list_reviews",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Reviews"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Create Review",
+        "description": "One of: a file (PDF, DOCX, TXT), pasted text, or use_saved_file for the resume uploaded in the settings.",
+        "operationId": "create_review",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_review"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/resume-reviews/{rid}": {
+      "get": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Get Review",
+        "operationId": "get_review",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Delete Review",
+        "operationId": "delete_review",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/resume-reviews/{rid}/export": {
+      "get": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Export Review",
+        "operationId": "export_review",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The report as a Markdown file",
+            "content": {
+              "text/markdown": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/resume-reviews/{rid}/rerun": {
+      "post": {
+        "tags": [
+          "resume"
+        ],
+        "summary": "Rerun Review",
+        "description": "The same resume, role and grade again: after the market moved, or to see the effect of new settings.",
+        "operationId": "rerun_review",
+        "parameters": [
+          {
+            "name": "rid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Rid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/jobs": {
       "get": {
         "tags": [
@@ -1631,6 +1902,82 @@
         ],
         "title": "Added"
       },
+      "AiPart": {
+        "properties": {
+          "used": {
+            "type": "boolean",
+            "title": "Used",
+            "default": false
+          },
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "default": ""
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "default": ""
+          },
+          "grade_fit": {
+            "type": "string",
+            "title": "Grade Fit",
+            "default": ""
+          },
+          "grade_comment": {
+            "type": "string",
+            "title": "Grade Comment",
+            "default": ""
+          },
+          "error": {
+            "type": "string",
+            "title": "Error",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "used",
+          "model",
+          "summary",
+          "grade_fit",
+          "grade_comment",
+          "error"
+        ],
+        "title": "AiPart"
+      },
+      "AiStatus": {
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "model_ready": {
+            "type": "boolean",
+            "title": "Model Ready"
+          },
+          "models": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Models",
+            "default": []
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "running",
+          "model_ready",
+          "models",
+          "message"
+        ],
+        "title": "AiStatus"
+      },
       "Answer-Input": {
         "properties": {
           "id": {
@@ -1755,6 +2102,64 @@
           "auto"
         ],
         "title": "AutopilotMode"
+      },
+      "Body_create_review": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Role"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "use_market": {
+            "type": "boolean",
+            "title": "Use Market",
+            "default": true
+          },
+          "use_ai": {
+            "type": "boolean",
+            "title": "Use Ai",
+            "default": false
+          },
+          "use_saved_file": {
+            "type": "boolean",
+            "title": "Use Saved File",
+            "default": false
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 60000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "grade"
+        ],
+        "title": "Body_create_review"
       },
       "Body_import_companies": {
         "properties": {
@@ -1936,6 +2341,60 @@
           "hidden"
         ],
         "title": "ChatStatus"
+      },
+      "Check": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "group": {
+            "type": "string",
+            "title": "Group"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CheckStatus"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "fix": {
+            "type": "string",
+            "title": "Fix",
+            "default": ""
+          },
+          "weight": {
+            "type": "integer",
+            "title": "Weight",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "group",
+          "title",
+          "status",
+          "detail",
+          "fix",
+          "weight"
+        ],
+        "title": "Check",
+        "description": "One test the resume went through, e.g. «Достижения в цифрах»."
+      },
+      "CheckStatus": {
+        "type": "string",
+        "enum": [
+          "pass",
+          "warn",
+          "fail"
+        ],
+        "title": "CheckStatus"
       },
       "Company": {
         "properties": {
@@ -2179,6 +2638,63 @@
         ],
         "title": "DayCount"
       },
+      "Diff": {
+        "properties": {
+          "previous_id": {
+            "type": "integer",
+            "title": "Previous Id"
+          },
+          "previous_score": {
+            "type": "integer",
+            "title": "Previous Score"
+          },
+          "score_delta": {
+            "type": "integer",
+            "title": "Score Delta"
+          },
+          "fixed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fixed",
+            "default": []
+          },
+          "new_issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "New Issues",
+            "default": []
+          },
+          "skills_added": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Skills Added",
+            "default": []
+          },
+          "same_resume": {
+            "type": "boolean",
+            "title": "Same Resume",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "previous_id",
+          "previous_score",
+          "score_delta",
+          "fixed",
+          "new_issues",
+          "skills_added",
+          "same_resume"
+        ],
+        "title": "Diff",
+        "description": "Compared with the previous review of the same role and grade: what you already improved."
+      },
       "Draft": {
         "properties": {
           "text": {
@@ -2314,6 +2830,17 @@
         ],
         "title": "FormAnswer"
       },
+      "Grade": {
+        "type": "string",
+        "enum": [
+          "intern",
+          "junior",
+          "middle",
+          "senior",
+          "lead"
+        ],
+        "title": "Grade"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -2437,6 +2964,135 @@
           "message"
         ],
         "title": "MailTest"
+      },
+      "Market": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query"
+          },
+          "sample_size": {
+            "type": "integer",
+            "title": "Sample Size"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources",
+            "default": []
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/MarketSkill"
+            },
+            "type": "array",
+            "title": "Skills",
+            "default": []
+          },
+          "coverage": {
+            "type": "integer",
+            "title": "Coverage",
+            "default": 0
+          },
+          "salary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Salary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title_words": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Title Words",
+            "default": []
+          },
+          "examples": {
+            "items": {
+              "$ref": "#/components/schemas/MarketVacancyRef"
+            },
+            "type": "array",
+            "title": "Examples",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "sample_size",
+          "sources",
+          "note",
+          "skills",
+          "coverage",
+          "salary",
+          "title_words",
+          "examples"
+        ],
+        "title": "Market"
+      },
+      "MarketSkill": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "share": {
+            "type": "integer",
+            "title": "Share"
+          },
+          "have": {
+            "type": "boolean",
+            "title": "Have"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "share",
+          "have"
+        ],
+        "title": "MarketSkill"
+      },
+      "MarketVacancyRef": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "company": {
+            "type": "string",
+            "title": "Company",
+            "default": ""
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "company",
+          "url",
+          "source"
+        ],
+        "title": "MarketVacancyRef"
       },
       "Ok": {
         "properties": {
@@ -2835,6 +3491,29 @@
         ],
         "title": "Reason"
       },
+      "Recommendation": {
+        "properties": {
+          "priority": {
+            "type": "integer",
+            "title": "Priority"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "priority",
+          "title",
+          "detail"
+        ],
+        "title": "Recommendation"
+      },
       "Reminders": {
         "properties": {
           "upcoming": {
@@ -2909,6 +3588,160 @@
         ],
         "title": "ResumeCount"
       },
+      "ResumeFacts": {
+        "properties": {
+          "words": {
+            "type": "integer",
+            "title": "Words"
+          },
+          "experience_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experience Months"
+          },
+          "contacts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Contacts",
+            "default": []
+          },
+          "skills_found": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Skills Found",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "words",
+          "experience_months",
+          "contacts",
+          "skills_found"
+        ],
+        "title": "ResumeFacts"
+      },
+      "ResumeReport": {
+        "properties": {
+          "score": {
+            "type": "integer",
+            "title": "Score"
+          },
+          "verdict": {
+            "type": "string",
+            "title": "Verdict"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "role_profile": {
+            "type": "string",
+            "title": "Role Profile",
+            "default": ""
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "facts": {
+            "$ref": "#/components/schemas/ResumeFacts"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/Check"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "strengths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Strengths"
+          },
+          "weaknesses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Weaknesses"
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/Recommendation"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          },
+          "rewrites": {
+            "items": {
+              "$ref": "#/components/schemas/Rewrite"
+            },
+            "type": "array",
+            "title": "Rewrites"
+          },
+          "market": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Market"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ai": {
+            "$ref": "#/components/schemas/AiPart",
+            "default": {
+              "used": false,
+              "model": "",
+              "summary": "",
+              "grade_fit": "",
+              "grade_comment": "",
+              "error": ""
+            }
+          },
+          "diff": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diff"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "verdict",
+          "role",
+          "role_profile",
+          "grade",
+          "facts",
+          "checks",
+          "strengths",
+          "weaknesses",
+          "recommendations",
+          "rewrites",
+          "market",
+          "ai",
+          "diff"
+        ],
+        "title": "ResumeReport"
+      },
       "ResumeUploaded": {
         "properties": {
           "ok": {
@@ -2927,6 +3760,324 @@
           "name"
         ],
         "title": "ResumeUploaded"
+      },
+      "ReviewDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "source_name": {
+            "type": "string",
+            "title": "Source Name"
+          },
+          "use_market": {
+            "type": "boolean",
+            "title": "Use Market"
+          },
+          "use_ai": {
+            "type": "boolean",
+            "title": "Use Ai"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "report": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResumeReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "finished_at",
+          "status",
+          "progress",
+          "role",
+          "grade",
+          "source_name",
+          "use_market",
+          "use_ai",
+          "score",
+          "error",
+          "report"
+        ],
+        "title": "ReviewDetail"
+      },
+      "ReviewOptions": {
+        "properties": {
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleOption"
+            },
+            "type": "array",
+            "title": "Roles"
+          },
+          "grades": {
+            "items": {
+              "$ref": "#/components/schemas/RoleOption"
+            },
+            "type": "array",
+            "title": "Grades"
+          },
+          "ai_available": {
+            "type": "boolean",
+            "title": "Ai Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "roles",
+          "grades",
+          "ai_available"
+        ],
+        "title": "ReviewOptions"
+      },
+      "ReviewStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "done",
+          "error"
+        ],
+        "title": "ReviewStatus"
+      },
+      "ReviewSummary": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Progress"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "source_name": {
+            "type": "string",
+            "title": "Source Name"
+          },
+          "use_market": {
+            "type": "boolean",
+            "title": "Use Market"
+          },
+          "use_ai": {
+            "type": "boolean",
+            "title": "Use Ai"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "finished_at",
+          "status",
+          "progress",
+          "role",
+          "grade",
+          "source_name",
+          "use_market",
+          "use_ai",
+          "score",
+          "error"
+        ],
+        "title": "ReviewSummary"
+      },
+      "Rewrite": {
+        "properties": {
+          "before": {
+            "type": "string",
+            "title": "Before"
+          },
+          "after": {
+            "type": "string",
+            "title": "After"
+          },
+          "why": {
+            "type": "string",
+            "title": "Why"
+          },
+          "by_ai": {
+            "type": "boolean",
+            "title": "By Ai",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "before",
+          "after",
+          "why",
+          "by_ai"
+        ],
+        "title": "Rewrite"
+      },
+      "RoleOption": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "RoleOption"
+      },
+      "Salary": {
+        "properties": {
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "low": {
+            "type": "integer",
+            "title": "Low"
+          },
+          "median": {
+            "type": "integer",
+            "title": "Median"
+          },
+          "high": {
+            "type": "integer",
+            "title": "High"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "currency",
+          "low",
+          "median",
+          "high",
+          "count"
+        ],
+        "title": "Salary"
       },
       "SearchChat": {
         "properties": {
@@ -3415,6 +4566,30 @@
             "title": "Other Max Details",
             "default": 40
           },
+          "ai_review": {
+            "type": "boolean",
+            "title": "Ai Review",
+            "default": false
+          },
+          "ai_model": {
+            "type": "string",
+            "pattern": "^[\\w.\\-/]+(:[\\w.\\-]+)?$",
+            "title": "Ai Model",
+            "default": "qwen3:8b"
+          },
+          "ollama_url": {
+            "type": "string",
+            "pattern": "^https?://[^\\s/]+(:\\d+)?/?$",
+            "title": "Ollama Url",
+            "default": "http://127.0.0.1:11434"
+          },
+          "review_market_size": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 5.0,
+            "title": "Review Market Size",
+            "default": 25
+          },
           "followup_days": {
             "type": "integer",
             "minimum": 1.0,
@@ -3485,6 +4660,10 @@
           "other_countries",
           "other_monitor",
           "other_max_details",
+          "ai_review",
+          "ai_model",
+          "ollama_url",
+          "review_market_size",
           "followup_days",
           "followup_template",
           "has_password",
@@ -4019,6 +5198,54 @@
               }
             ],
             "title": "Other Max Details"
+          },
+          "ai_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Review"
+          },
+          "ai_model": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[\\w.\\-/]+(:[\\w.\\-]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Model"
+          },
+          "ollama_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^https?://[^\\s/]+(:\\d+)?/?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ollama Url"
+          },
+          "review_market_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 60.0,
+                "minimum": 5.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Market Size"
           },
           "followup_days": {
             "anyOf": [

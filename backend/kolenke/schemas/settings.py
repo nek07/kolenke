@@ -60,7 +60,7 @@ class SettingsFields(BaseModel):
     f_skip_no_salary: bool = False
     f_experience: list[Experience] = []
     f_exclude_companies: str = ""  # one per line or comma-separated, part of the name is enough
-    f_skip_rejected: bool = True  # don't apply again where you were already refused
+    f_skip_rejected: bool = False  # on: don't apply again to a company that already said «не сейчас»
     f_min_match: Annotated[int, Ge(0), Le(100)] = 0  # hh skill match, %; vacancies without the mark are kept
     f_sort_match: bool = True  # best skill match first in the review and the apply queue
 
@@ -98,6 +98,12 @@ class SettingsFields(BaseModel):
     other_countries: str = ""  # countries and/or cities, e.g. «Казахстан, удалённо»; empty = any
     other_monitor: bool = True  # check other sites in every autopilot cycle
     other_max_details: NonNegative = 40  # vacancy pages opened per check (0 = only the lists)
+
+    # resume review
+    ai_review: bool = False  # a local model (Ollama) adds a recruiter's view; the resume stays on this computer
+    ai_model: str = Field("qwen3:8b", pattern=r"^[\w.\-/]+(:[\w.\-]+)?$")  # any model pulled into Ollama
+    ollama_url: str = Field("http://127.0.0.1:11434", pattern=r"^https?://[^\s/]+(:\d+)?/?$")
+    review_market_size: Annotated[int, Ge(5), Le(60)] = 25  # hh vacancies read for the market comparison
 
     # after the response
     followup_days: Count = 5

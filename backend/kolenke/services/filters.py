@@ -79,9 +79,9 @@ def check(v: dict, s: AppSettings, rejected: set[str], source: str = "") -> tupl
 
     if s.f_skip_rejected:
         if company and company in rejected:
-            add(False, "эта компания уже отказала вам раньше")
+            add(False, "эта компания уже отвечала вам «не сейчас»")
         else:
-            add(True, "отказов от этой компании не было")
+            add(True, "эта компания ещё не отвечала «не сейчас»")
 
     match, need = v.get("skill_match"), s.f_min_match
     if match is None:

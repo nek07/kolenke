@@ -9,10 +9,11 @@ from kolenke.sources.browser import visible, wait_captcha
 from kolenke.sources.hh.session import logged_in_page
 from kolenke.workers.runner import runner
 
+ARCHIVED = "в архиве"
 STATE_NAMES = {
     "not-viewed": "не просмотрен", "viewed": "просмотрен", "discard": "отказ",
     "invitation": "приглашение", "invite": "приглашение", "interview": "собеседование",
-    "hired": "выход на работу", "archived": "в архиве",
+    "hired": "выход на работу", "archived": ARCHIVED,
 }
 
 NEGOTIATIONS_JS = """() => [...document.querySelectorAll('[data-qa="negotiations-item"]')].map(it => {
@@ -30,14 +31,23 @@ NEGOTIATIONS_JS = """() => [...document.querySelectorAll('[data-qa="negotiations
 })"""
 
 
-def _store(domain: str, it: dict) -> tuple[int, int]:
-    """(updated, added) for one row of the responses list."""
+# the bare archive tag hides the real outcome, so it only replaces «still waiting»
+_ARCHIVE_OVERWRITES = (None, "", "не просмотрен")
+
+
+def _store(domain: str, it: dict, archived: bool = False) -> tuple[int, int]:
+    """(updated, added) for one row of the responses list. Rows of the archive tab only update
+    responses the bot already knows; a bare «Архив» tag never replaces a state hh reported before."""
     m = re.search(r"/vacancy/(\d+)", it["href"])
     if not m:
         return 0, 0
     ext_id = m.group(1)
     state = STATE_NAMES.get(it["state"]) or it["state_text"].lower() or it["state"]
     known = vacancies.get_by_ext_id("hh", ext_id)
+    if archived and not known:
+        return 0, 0
+    if known and state == ARCHIVED and known["hh_state"] not in _ARCHIVE_OVERWRITES:
+        return 0, 0
     if known:
         updated = vacancies.set_hh_state(known["id"], state)
         if state != known["hh_state"]:
@@ -61,19 +71,22 @@ def sync_responses() -> None:
         if not session:
             return
         page, domain = session
-        prev_first = None
-        for n in range(50):
-            if runner.stop_requested:
-                break
-            page.goto(f"https://{domain}/applicant/negotiations?filter=all&page={n}", wait_until="domcontentloaded")
-            if not wait_captcha(page) or not visible(page, '[data-qa="negotiations-item"]', timeout=10000):
-                break
-            items = page.evaluate(NEGOTIATIONS_JS)
-            if not items or items[0]["href"] == prev_first:
-                break
-            prev_first = items[0]["href"]
-            for it in items:
-                u, a = _store(domain, it)
-                seen, updated, added = seen + 1, updated + u, added + a
-            page.wait_for_timeout(random.randint(1200, 2500))
+        # closed vacancies leave the «all» tab for the archive; without it their state would freeze
+        for tab in ("all", "archived"):
+            prev_first = None
+            for n in range(50):
+                if runner.stop_requested:
+                    break
+                page.goto(f"https://{domain}/applicant/negotiations?filter={tab}&page={n}",
+                          wait_until="domcontentloaded")
+                if not wait_captcha(page) or not visible(page, '[data-qa="negotiations-item"]', timeout=10000):
+                    break
+                items = page.evaluate(NEGOTIATIONS_JS)
+                if not items or items[0]["href"] == prev_first:
+                    break
+                prev_first = items[0]["href"]
+                for it in items:
+                    u, a = _store(domain, it, archived=tab == "archived")
+                    seen, updated, added = seen + 1, updated + u, added + a
+                page.wait_for_timeout(random.randint(1200, 2500))
     log(f"hh: синхронизация откликов — всего {seen}, обновлено {updated}, добавлено {added}")

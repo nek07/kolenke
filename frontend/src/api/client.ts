@@ -30,6 +30,10 @@ export type Status = Schemas["Status"];
 export type Settings = Schemas["SettingsOut"];
 export type SettingsUpdate = Schemas["SettingsUpdate"];
 export type Answer = Schemas["Answer-Output"];
+export type ReviewSummary = Schemas["ReviewSummary"];
+export type ReviewDetail = Schemas["ReviewDetail"];
+export type ResumeReport = Schemas["ResumeReport"];
+export type Grade = Schemas["Grade"];
 export type TaskKey =
   | "hh_login"
   | "hh_check"

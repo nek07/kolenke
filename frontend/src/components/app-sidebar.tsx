@@ -5,6 +5,7 @@ import {
   BookOpen,
   Briefcase,
   Columns3,
+  FileSearch,
   Globe,
   House,
   Mail,
@@ -46,6 +47,7 @@ const MAIN: Item[] = [
 ];
 
 const TOOLS: Item[] = [
+  { href: "/resume", label: "Проверка резюме", icon: FileSearch },
   { href: "/answers", label: "База ответов", icon: BookOpen },
   { href: "/stats", label: "Статистика", icon: BarChart3 },
   { href: "/settings", label: "Настройки", icon: SlidersHorizontal },

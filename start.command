@@ -10,6 +10,10 @@ if [ ! -d .venv ]; then
   .venv/bin/pip install -q -e "backend[dev]"
   .venv/bin/python -m playwright install chromium
 fi
+# new backend dependencies (pyproject.toml changed since the last install)
+if [ ! -f .venv/.deps-stamp ] || [ backend/pyproject.toml -nt .venv/.deps-stamp ]; then
+  .venv/bin/pip install -q -e "backend[dev]" && touch .venv/.deps-stamp
+fi
 
 if ! command -v npm >/dev/null; then
   echo "Нужен Node.js 20.9+ для интерфейса: https://nodejs.org или brew install node"

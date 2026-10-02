@@ -32,7 +32,7 @@ def cycle() -> None:
     else:
         vacancies.queue(fresh)
         for vid in fresh:
-            events.add(vid, "queued", "Автопилот поставил в очередь")
+            events.add(vid, "queued", events.AUTOPILOT_QUEUED)
         log(f"Автопилот: {len(fresh)} свежих вакансий — откликаюсь")
         apply_queue()
     if not runner.stop_requested and settings.get().other_monitor:

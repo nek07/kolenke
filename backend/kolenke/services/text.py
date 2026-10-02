@@ -27,3 +27,14 @@ def fill(template: str, s: AppSettings, company: str | None = "", position: str 
 def week_start() -> str:
     d = date.today()
     return (d - timedelta(days=d.weekday())).isoformat()
+
+
+def currency_of(salary_text: str | None) -> str:
+    t = (salary_text or "").lower()
+    if "₽" in t or "руб" in t:
+        return "RUB"
+    if "$" in t or "usd" in t:
+        return "USD"
+    if "€" in t or "eur" in t:
+        return "EUR"
+    return "KZT" if ("₸" in t or "тенге" in t or "kzt" in t or re.search(r"\d", t)) else ""

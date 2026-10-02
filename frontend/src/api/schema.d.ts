@@ -544,6 +544,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/resume-reviews/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review Options */
+        get: operations["review_options"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resume-reviews/ai-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ai Status
+         * @description Whether Ollama runs on this computer and the chosen model is downloaded.
+         */
+        get: operations["ai_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resume-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Reviews */
+        get: operations["list_reviews"];
+        put?: never;
+        /**
+         * Create Review
+         * @description One of: a file (PDF, DOCX, TXT), pasted text, or use_saved_file for the resume uploaded in the settings.
+         */
+        post: operations["create_review"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resume-reviews/{rid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Review */
+        get: operations["get_review"];
+        put?: never;
+        post?: never;
+        /** Delete Review */
+        delete: operations["delete_review"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resume-reviews/{rid}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export Review */
+        get: operations["export_review"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/resume-reviews/{rid}/rerun": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rerun Review
+         * @description The same resume, role and grade again: after the market moved, or to see the effect of new settings.
+         */
+        post: operations["rerun_review"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/jobs": {
         parameters: {
             query?: never;
@@ -677,6 +790,53 @@ export interface components {
             /** Added */
             added: number;
         };
+        /** AiPart */
+        AiPart: {
+            /**
+             * Used
+             * @default false
+             */
+            used: boolean;
+            /**
+             * Model
+             * @default
+             */
+            model: string;
+            /**
+             * Summary
+             * @default
+             */
+            summary: string;
+            /**
+             * Grade Fit
+             * @default
+             */
+            grade_fit: string;
+            /**
+             * Grade Comment
+             * @default
+             */
+            grade_comment: string;
+            /**
+             * Error
+             * @default
+             */
+            error: string;
+        };
+        /** AiStatus */
+        AiStatus: {
+            /** Running */
+            running: boolean;
+            /** Model Ready */
+            model_ready: boolean;
+            /**
+             * Models
+             * @default []
+             */
+            models: string[];
+            /** Message */
+            message: string;
+        };
         /** Answer */
         "Answer-Input": {
             /** Id */
@@ -734,6 +894,31 @@ export interface components {
          * @enum {string}
          */
         AutopilotMode: "review" | "auto";
+        /** Body_create_review */
+        Body_create_review: {
+            /** Role */
+            role: string;
+            grade: components["schemas"]["Grade"];
+            /**
+             * Use Market
+             * @default true
+             */
+            use_market?: boolean;
+            /**
+             * Use Ai
+             * @default false
+             */
+            use_ai?: boolean;
+            /**
+             * Use Saved File
+             * @default false
+             */
+            use_saved_file?: boolean;
+            /** Text */
+            text?: string | null;
+            /** File */
+            file?: string | null;
+        };
         /** Body_import_companies */
         Body_import_companies: {
             /** File */
@@ -778,6 +963,36 @@ export interface components {
          * @enum {string}
          */
         ChatStatus: "pending" | "info" | "approved" | "sent" | "auto_sent" | "closed" | "hidden";
+        /**
+         * Check
+         * @description One test the resume went through, e.g. «Достижения в цифрах».
+         */
+        Check: {
+            /** Id */
+            id: string;
+            /** Group */
+            group: string;
+            /** Title */
+            title: string;
+            status: components["schemas"]["CheckStatus"];
+            /** Detail */
+            detail: string;
+            /**
+             * Fix
+             * @default
+             */
+            fix: string;
+            /**
+             * Weight
+             * @default 1
+             */
+            weight: number;
+        };
+        /**
+         * CheckStatus
+         * @enum {string}
+         */
+        CheckStatus: "pass" | "warn" | "fail";
         /** Company */
         Company: {
             /** Id */
@@ -872,6 +1087,38 @@ export interface components {
             /** Mail */
             mail: number;
         };
+        /**
+         * Diff
+         * @description Compared with the previous review of the same role and grade: what you already improved.
+         */
+        Diff: {
+            /** Previous Id */
+            previous_id: number;
+            /** Previous Score */
+            previous_score: number;
+            /** Score Delta */
+            score_delta: number;
+            /**
+             * Fixed
+             * @default []
+             */
+            fixed: string[];
+            /**
+             * New Issues
+             * @default []
+             */
+            new_issues: string[];
+            /**
+             * Skills Added
+             * @default []
+             */
+            skills_added: string[];
+            /**
+             * Same Resume
+             * @default false
+             */
+            same_resume: boolean;
+        };
         /** Draft */
         Draft: {
             /** Text */
@@ -913,6 +1160,11 @@ export interface components {
             /** A */
             a: string;
         };
+        /**
+         * Grade
+         * @enum {string}
+         */
+        Grade: "intern" | "junior" | "middle" | "senior" | "lead";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -959,6 +1211,67 @@ export interface components {
             ok: boolean;
             /** Message */
             message: string;
+        };
+        /** Market */
+        Market: {
+            /** Query */
+            query: string;
+            /** Sample Size */
+            sample_size: number;
+            /**
+             * Sources
+             * @default []
+             */
+            sources: string[];
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /**
+             * Skills
+             * @default []
+             */
+            skills: components["schemas"]["MarketSkill"][];
+            /**
+             * Coverage
+             * @default 0
+             */
+            coverage: number;
+            salary: components["schemas"]["Salary"] | null;
+            /**
+             * Title Words
+             * @default []
+             */
+            title_words: string[];
+            /**
+             * Examples
+             * @default []
+             */
+            examples: components["schemas"]["MarketVacancyRef"][];
+        };
+        /** MarketSkill */
+        MarketSkill: {
+            /** Name */
+            name: string;
+            /** Share */
+            share: number;
+            /** Have */
+            have: boolean;
+        };
+        /** MarketVacancyRef */
+        MarketVacancyRef: {
+            /** Title */
+            title: string;
+            /**
+             * Company
+             * @default
+             */
+            company: string;
+            /** Url */
+            url: string;
+            /** Source */
+            source: string;
         };
         /** Ok */
         Ok: {
@@ -1062,6 +1375,15 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** Recommendation */
+        Recommendation: {
+            /** Priority */
+            priority: number;
+            /** Title */
+            title: string;
+            /** Detail */
+            detail: string;
+        };
         /** Reminders */
         Reminders: {
             /** Upcoming */
@@ -1082,6 +1404,62 @@ export interface components {
             /** Discards */
             discards: number | null;
         };
+        /** ResumeFacts */
+        ResumeFacts: {
+            /** Words */
+            words: number;
+            /** Experience Months */
+            experience_months: number | null;
+            /**
+             * Contacts
+             * @default []
+             */
+            contacts: string[];
+            /**
+             * Skills Found
+             * @default []
+             */
+            skills_found: string[];
+        };
+        /** ResumeReport */
+        ResumeReport: {
+            /** Score */
+            score: number;
+            /** Verdict */
+            verdict: string;
+            /** Role */
+            role: string;
+            /**
+             * Role Profile
+             * @default
+             */
+            role_profile: string;
+            grade: components["schemas"]["Grade"];
+            facts: components["schemas"]["ResumeFacts"];
+            /** Checks */
+            checks: components["schemas"]["Check"][];
+            /** Strengths */
+            strengths: string[];
+            /** Weaknesses */
+            weaknesses: string[];
+            /** Recommendations */
+            recommendations: components["schemas"]["Recommendation"][];
+            /** Rewrites */
+            rewrites: components["schemas"]["Rewrite"][];
+            market: components["schemas"]["Market"] | null;
+            /**
+             * @default {
+             *       "used": false,
+             *       "model": "",
+             *       "summary": "",
+             *       "grade_fit": "",
+             *       "grade_comment": "",
+             *       "error": ""
+             *     }
+             */
+            ai: components["schemas"]["AiPart"];
+            diff: components["schemas"]["Diff"] | null;
+        };
         /** ResumeUploaded */
         ResumeUploaded: {
             /**
@@ -1091,6 +1469,105 @@ export interface components {
             ok: boolean;
             /** Name */
             name: string;
+        };
+        /** ReviewDetail */
+        ReviewDetail: {
+            /** Id */
+            id: number;
+            /** Created At */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            status: components["schemas"]["ReviewStatus"];
+            /** Progress */
+            progress: string | null;
+            /** Role */
+            role: string;
+            grade: components["schemas"]["Grade"];
+            /** Source Name */
+            source_name: string;
+            /** Use Market */
+            use_market: boolean;
+            /** Use Ai */
+            use_ai: boolean;
+            /** Score */
+            score: number | null;
+            /** Error */
+            error: string | null;
+            report: components["schemas"]["ResumeReport"] | null;
+        };
+        /** ReviewOptions */
+        ReviewOptions: {
+            /** Roles */
+            roles: components["schemas"]["RoleOption"][];
+            /** Grades */
+            grades: components["schemas"]["RoleOption"][];
+            /** Ai Available */
+            ai_available: boolean;
+        };
+        /**
+         * ReviewStatus
+         * @enum {string}
+         */
+        ReviewStatus: "pending" | "running" | "done" | "error";
+        /** ReviewSummary */
+        ReviewSummary: {
+            /** Id */
+            id: number;
+            /** Created At */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            status: components["schemas"]["ReviewStatus"];
+            /** Progress */
+            progress: string | null;
+            /** Role */
+            role: string;
+            grade: components["schemas"]["Grade"];
+            /** Source Name */
+            source_name: string;
+            /** Use Market */
+            use_market: boolean;
+            /** Use Ai */
+            use_ai: boolean;
+            /** Score */
+            score: number | null;
+            /** Error */
+            error: string | null;
+        };
+        /** Rewrite */
+        Rewrite: {
+            /** Before */
+            before: string;
+            /** After */
+            after: string;
+            /** Why */
+            why: string;
+            /**
+             * By Ai
+             * @default false
+             */
+            by_ai: boolean;
+        };
+        /** RoleOption */
+        RoleOption: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /** Salary */
+        Salary: {
+            /** Currency */
+            currency: string;
+            /** Low */
+            low: number;
+            /** Median */
+            median: number;
+            /** High */
+            high: number;
+            /** Count */
+            count: number;
         };
         /** SearchChat */
         SearchChat: {
@@ -1387,6 +1864,26 @@ export interface components {
              */
             other_max_details: number;
             /**
+             * Ai Review
+             * @default false
+             */
+            ai_review: boolean;
+            /**
+             * Ai Model
+             * @default qwen3:8b
+             */
+            ai_model: string;
+            /**
+             * Ollama Url
+             * @default http://127.0.0.1:11434
+             */
+            ollama_url: string;
+            /**
+             * Review Market Size
+             * @default 25
+             */
+            review_market_size: number;
+            /**
              * Followup Days
              * @default 5
              */
@@ -1500,6 +1997,14 @@ export interface components {
             other_monitor?: boolean | null;
             /** Other Max Details */
             other_max_details?: number | null;
+            /** Ai Review */
+            ai_review?: boolean | null;
+            /** Ai Model */
+            ai_model?: string | null;
+            /** Ollama Url */
+            ollama_url?: string | null;
+            /** Review Market Size */
+            review_market_size?: number | null;
             /** Followup Days */
             followup_days?: number | null;
             /** Followup Template */
@@ -2874,6 +3379,223 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_options: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewOptions"];
+                };
+            };
+        };
+    };
+    ai_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiStatus"];
+                };
+            };
+        };
+    };
+    list_reviews: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewSummary"][];
+                };
+            };
+        };
+    };
+    create_review: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_review"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_review: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rid: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_review: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rid: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ok"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_review: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rid: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The report as a Markdown file */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/markdown": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rerun_review: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rid: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewSummary"];
                 };
             };
             /** @description Validation Error */
